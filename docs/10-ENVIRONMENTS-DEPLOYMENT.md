@@ -80,23 +80,23 @@ this table and `frontend/.env.example` in the same PR.
 |---|---|---|---|---|---|---|---|
 | `WP_API_BASE_URL` | WordPress origin for `gotg/v1` requests. No trailing slash. | `https://cms.grillonthegreen.com` | ✅ | ✅ | ✅ | ✅ | No |
 | `NEXT_PUBLIC_SITE_URL` | Canonical frontend origin, used for canonicals, sitemap, and JSON-LD | `https://grillonthegreen.com` | ✅ | ✅ | ✅ | ✅ | No |
-| `PREVIEW_SECRET` | Shared secret validating WordPress preview links | `4f8a2c9e1b7d6503` | ✅ | ✅ | ✅ | ✅ | **Yes** |
-| `REVALIDATE_SECRET` | Shared secret authenticating WordPress revalidation webhooks | `9e3b7f1a8c2d4650` | ✅ | ➖ | ✅ | ✅ | **Yes** |
+| `PREVIEW_SECRET` | Shared secret validating WordPress preview links | `<generate: openssl rand -hex 32>` | ✅ | ✅ | ✅ | ✅ | **Yes** |
+| `REVALIDATE_SECRET` | Shared secret authenticating WordPress revalidation webhooks | `<generate: openssl rand -hex 32>` | ✅ | ➖ | ✅ | ✅ | **Yes** |
 | `WP_PREVIEW_USER` | WordPress username for preview API authentication | `gotg-preview` | ✅ | ✅ | ✅ | ✅ | No |
-| `WP_PREVIEW_APP_PASSWORD` | WordPress Application Password for that user | `abcd efgh ijkl mnop qrst uvwx` | ✅ | ✅ | ✅ | ✅ | **Yes** |
-| `RESEND_API_KEY` | Contact form email delivery | `re_AbC123...` | ➖ | ✅ | ✅ | ✅ | **Yes** |
+| `WP_PREVIEW_APP_PASSWORD` | WordPress Application Password for that user | `<issued by WordPress: Users → Profile → Application Passwords>` | ✅ | ✅ | ✅ | ✅ | **Yes** |
+| `RESEND_API_KEY` | Contact form email delivery | `<issued by Resend dashboard>` | ➖ | ✅ | ✅ | ✅ | **Yes** |
 | `CONTACT_FORM_TO` | Recipient for contact form submissions | `hello@grillonthegreen.com` | ➖ | ✅ | ✅ | ✅ | **Yes** |
 | `CONTACT_FORM_FROM` | Verified sender address | `website@grillonthegreen.com` | ➖ | ✅ | ✅ | ✅ | No |
-| `NEXT_PUBLIC_BEHOLD_FEED_ID` | Instagram feed identifier | `AbCdEf123456` | ➖ | ✅ | ✅ | ✅ | No |
-| `GOOGLE_MAPS_STATIC_API_KEY` | Signs static map image URLs server-side | `AIzaSy...` | ➖ | ✅ | ✅ | ✅ | **Yes** |
-| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | GA4 property | `G-XXXXXXXXXX` | ➖ | ➖ | ➖ | ✅ | No |
-| `NEXT_PUBLIC_SENTRY_DSN` | Sentry project endpoint | `https://abc@o1.ingest.sentry.io/2` | ➖ | ✅ | ✅ | ✅ | No |
-| `SENTRY_AUTH_TOKEN` | Source-map upload at build time | `sntrys_...` | ➖ | ✅ | ✅ | ✅ | **Yes** |
+| `NEXT_PUBLIC_BEHOLD_FEED_ID` | Instagram feed identifier | `<issued by Behold dashboard>` | ➖ | ✅ | ✅ | ✅ | No |
+| `GOOGLE_MAPS_STATIC_API_KEY` | Signs static map image URLs server-side | `<issued by Google Cloud console>` | ➖ | ✅ | ✅ | ✅ | **Yes** |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | GA4 property | `<issued by GA4 admin, format G-XXXXXXXXXX>` | ➖ | ➖ | ➖ | ✅ | No |
+| `NEXT_PUBLIC_SENTRY_DSN` | Sentry project endpoint | `<issued by Sentry project settings>` | ➖ | ✅ | ✅ | ✅ | No |
+| `SENTRY_AUTH_TOKEN` | Source-map upload at build time | `<issued by Sentry, scoped to project:releases>` | ➖ | ✅ | ✅ | ✅ | **Yes** |
 | `SENTRY_ORG` | Sentry organisation slug | `gotg` | ➖ | ✅ | ✅ | ✅ | No |
 | `SENTRY_PROJECT` | Sentry project slug | `gotg-frontend` | ➖ | ✅ | ✅ | ✅ | No |
 | `VERCEL_ENV` | Set by Vercel; read to gate indexing and analytics | `production` | ➖ | auto | auto | auto | No |
 | `STAGING_BASIC_AUTH_USER` | HTTP Basic username protecting staging | `gotg` | ➖ | ➖ | ✅ | ➖ | **Yes** |
-| `STAGING_BASIC_AUTH_PASSWORD` | HTTP Basic password protecting staging | `{generated}` | ➖ | ➖ | ✅ | ➖ | **Yes** |
+| `STAGING_BASIC_AUTH_PASSWORD` | HTTP Basic password protecting staging | `<generate: openssl rand -base64 24>` | ➖ | ➖ | ✅ | ➖ | **Yes** |
 
 ✅ required · ➖ not set
 
@@ -104,13 +104,19 @@ Any `NEXT_PUBLIC_` variable is embedded in the client bundle and is public by
 definition. No secret may carry that prefix. This is why the Google Maps key is
 server-side only — the map URL is signed in a Server Component.
 
+**No real value appears in this table, and none ever may.** Every Example cell
+is either a non-secret literal (a URL, a slug, an environment name) or an
+angle-bracketed instruction describing how to obtain the value. A cell that
+contains something resembling a usable credential is a defect, whether or not
+the value is live — a plausible-looking example gets copied.
+
 ### 3.2 Backend (WordPress `wp-config.php`)
 
 | Constant | Purpose | Example | Local | Staging | Production | Secret |
 |---|---|---|---|---|---|---|
 | `GOTG_FRONTEND_URL` | Target for revalidation webhooks and preview redirects | `https://grillonthegreen.com` | ✅ | ✅ | ✅ | No |
-| `GOTG_REVALIDATE_SECRET` | Must equal the frontend `REVALIDATE_SECRET` | `9e3b7f1a8c2d4650` | ✅ | ✅ | ✅ | **Yes** |
-| `GOTG_PREVIEW_SECRET` | Must equal the frontend `PREVIEW_SECRET` | `4f8a2c9e1b7d6503` | ✅ | ✅ | ✅ | **Yes** |
+| `GOTG_REVALIDATE_SECRET` | Must equal the frontend `REVALIDATE_SECRET` | `<generate: openssl rand -hex 32>` | ✅ | ✅ | ✅ | **Yes** |
+| `GOTG_PREVIEW_SECRET` | Must equal the frontend `PREVIEW_SECRET` | `<generate: openssl rand -hex 32>` | ✅ | ✅ | ✅ | **Yes** |
 | `WP_ENVIRONMENT_TYPE` | WordPress environment awareness | `local` / `staging` / `production` | ✅ | ✅ | ✅ | No |
 | `WP_DEBUG` | Verbose errors and logging | `true` local, `false` elsewhere | ✅ | ✅ | ✅ | No |
 | `WP_DEBUG_LOG` | Log destination | `true` | ✅ | ✅ | ➖ | No |
@@ -118,14 +124,49 @@ server-side only — the map URL is signed in a Server Component.
 | `DISALLOW_FILE_MODS` | Blocks admin-initiated plugin installs on production | `false` local, `true` production | ✅ | ✅ | ✅ | No |
 | `AUTOMATIC_UPDATER_DISABLED` | Prevents unreviewed core auto-updates | `true` | ➖ | ✅ | ✅ | No |
 | `WP_MEMORY_LIMIT` | PHP memory for admin operations | `256M` | ✅ | ✅ | ✅ | No |
-| `DB_NAME` / `DB_USER` / `DB_PASSWORD` / `DB_HOST` | MySQL credentials | — | ➖ (SQLite) | ✅ | ✅ | **Yes** |
+| `DB_NAME` / `DB_USER` / `DB_PASSWORD` / `DB_HOST` | MySQL credentials | `<issued by the managed host>` | ➖ (SQLite) | ✅ | ✅ | **Yes** |
 | `WP_CACHE` | Enables object caching | `true` | ➖ | ✅ | ✅ | No |
-| WordPress salts (8 constants) | Session and cookie security | — | ✅ | ✅ | ✅ | **Yes** |
+| WordPress salts (8 constants) | Session and cookie security | `<generate: https://api.wordpress.org/secret-key/1.1/salt/>` | ✅ | ✅ | ✅ | **Yes** |
 
 Secrets are stored in the host's environment configuration, never in a tracked
 file. `wp-config.php` is gitignored (`AGENTS.md`).
 
-### 3.3 `.env.example`
+### 3.3 Shared Secret Handling
+
+`PREVIEW_SECRET` / `GOTG_PREVIEW_SECRET` and `REVALIDATE_SECRET` /
+`GOTG_REVALIDATE_SECRET` are **shared secrets**: one value held on both sides of
+a trust boundary. They obey four rules.
+
+| Rule | Detail |
+|---|---|
+| Generate per environment | Local, staging, and production each get their own pair. Never reuse one value across environments — a leaked local secret must not authenticate against production. |
+| Both sides must match | `PREVIEW_SECRET` in Vercel must equal `GOTG_PREVIEW_SECRET` in `wp-config.php` for the same environment, byte for byte. A mismatch surfaces as a 401 from `/preview` or a silently ignored revalidation webhook. |
+| Never committed | Not in a tracked file, not in `.env.example`, not in a document, not in a commit message, not in a task description. They live only in the hosting provider's environment variable store (Vercel Project Settings → Environment Variables; the WordPress host's environment configuration or `wp-config.php`) and, locally, in `frontend/.env.local`, which is gitignored. |
+| Rotate on exposure | If a value is ever committed, pasted into a ticket, or sent over an unencrypted channel, rotate both sides immediately. Rotation is a two-step deploy: set the new value on both sides, then redeploy the frontend. Brief webhook failures during the window are absorbed by the time-based ISR floor in §6.3. |
+
+Generate a pair with:
+
+```bash
+openssl rand -hex 32   # PREVIEW_SECRET  / GOTG_PREVIEW_SECRET
+openssl rand -hex 32   # REVALIDATE_SECRET / GOTG_REVALIDATE_SECRET
+```
+
+The same four rules apply to every row in §3.1 and §3.2 marked **Secret: Yes**,
+including `WP_PREVIEW_APP_PASSWORD`, `RESEND_API_KEY`, `CONTACT_FORM_TO`,
+`GOOGLE_MAPS_STATIC_API_KEY`, `SENTRY_AUTH_TOKEN`, the staging Basic Auth
+credentials, the database credentials, and the WordPress salts — the only
+difference is that those are issued by a provider rather than generated locally.
+
+Storage locations, for the avoidance of doubt:
+
+| Environment | Frontend secrets live in | Backend secrets live in |
+|---|---|---|
+| Local | `frontend/.env.local` — gitignored, never committed | `wp-config.php` — gitignored per `AGENTS.md` |
+| Preview | Vercel environment variables, Preview scope | Staging WordPress host configuration |
+| Staging | Vercel environment variables, Preview scope | Staging WordPress host configuration |
+| Production | Vercel environment variables, Production scope | Production WordPress host configuration |
+
+### 3.4 `.env.example`
 
 Committed. Contains every frontend variable with an empty or placeholder value
 and a one-line comment. Never contains a real secret.
@@ -143,10 +184,11 @@ WP_API_BASE_URL=http://localhost:8881
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 # --- Preview and revalidation ---
-# Must match GOTG_PREVIEW_SECRET in the WordPress wp-config.php.
-PREVIEW_SECRET=change-me-local-preview
-# Must match GOTG_REVALIDATE_SECRET in the WordPress wp-config.php.
-REVALIDATE_SECRET=change-me-local-revalidate
+# Generate each with: openssl rand -hex 32
+# Must match GOTG_PREVIEW_SECRET in the WordPress wp-config.php, byte for byte.
+PREVIEW_SECRET=
+# Must match GOTG_REVALIDATE_SECRET in the WordPress wp-config.php, byte for byte.
+REVALIDATE_SECRET=
 # WordPress user and Application Password used for draft previews.
 WP_PREVIEW_USER=
 WP_PREVIEW_APP_PASSWORD=
@@ -249,18 +291,25 @@ Assumes Windows 11 with git installed.
    there is no licence to enter, no plugin to activate, and no JSON to sync
    (`AGENTS.md` Rule 5, ADR-0025).
 5. Activate the **gotg-headless** theme.
-6. Add to `wp-config.php` (gitignored):
+6. Generate the two shared secrets. Run each command once and keep the output —
+   the same two values go into both `wp-config.php` below and
+   `frontend/.env.local` in §4.3. They must match byte for byte; see §3.3.
+   ```bash
+   openssl rand -hex 32   # use for GOTG_PREVIEW_SECRET  / PREVIEW_SECRET
+   openssl rand -hex 32   # use for GOTG_REVALIDATE_SECRET / REVALIDATE_SECRET
+   ```
+7. Add to `wp-config.php` (gitignored), pasting the generated values:
    ```php
    define( 'GOTG_FRONTEND_URL', 'http://localhost:3000' );
-   define( 'GOTG_REVALIDATE_SECRET', 'change-me-local-revalidate' );
-   define( 'GOTG_PREVIEW_SECRET', 'change-me-local-preview' );
+   define( 'GOTG_REVALIDATE_SECRET', '' ); // paste the second value from step 6
+   define( 'GOTG_PREVIEW_SECRET', '' );    // paste the first value from step 6
    define( 'WP_ENVIRONMENT_TYPE', 'local' );
    define( 'WP_DEBUG', true );
    define( 'WP_DEBUG_LOG', true );
    define( 'WP_DEBUG_DISPLAY', false );
    define( 'DISALLOW_FILE_EDIT', true );
    ```
-7. Seed content:
+8. Seed content:
    ```bash
    wp @gotg-local eval-file tools/seed-content.php
    ```
@@ -268,7 +317,7 @@ Assumes Windows 11 with git installed.
    `gotg_location`, the default `gotg_menu_section` and `gotg_dietary` terms,
    a handful of `gotg_menu_item` records, two `gotg_event` records, and
    populates Site Settings. It is idempotent.
-8. Verify: `http://localhost:{studio-port}/wp-json/gotg/v1/home` returns JSON
+9. Verify: `http://localhost:{studio-port}/wp-json/gotg/v1/home` returns JSON
    containing a `_global` key.
 
 ### 4.3 Frontend
@@ -279,6 +328,8 @@ git clone <frontend-remote> grills
 cd grills/frontend
 cp .env.example .env.local
 # Set WP_API_BASE_URL to the Studio site URL and port from step 4.2.
+# Paste the two secrets generated in step 6 of 4.2 into PREVIEW_SECRET and
+# REVALIDATE_SECRET. They must match wp-config.php byte for byte.
 pnpm install
 pnpm dev
 ```
@@ -864,7 +915,7 @@ cleanly into SQLite. Two workable approaches:
    meta, which WXR carries natively, so they survive the round trip. The
    `gotg_site_settings` option is **not** in WXR and must be exported separately
    with `wp option get gotg_site_settings --format=json`.
-2. **Fallback — reseed.** Run the seed script (§4.2 step 7). Faster, always
+2. **Fallback — reseed.** Run the seed script (§4.2 step 8). Faster, always
    works, and adequate for most development.
 
 Attempting a direct `mysqldump` → SQLite import is not supported and must not be
