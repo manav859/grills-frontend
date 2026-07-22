@@ -1,0 +1,114 @@
+// grills.code-workspace
+//
+// Multi-root workspace joining the frontend/docs repo (D:\work\grills) with the
+// WordPress Studio backend site (C:\Users\manav\Studio\grills) so both halves of
+// the project are editable, searchable, and indexed in a single VS Code window.
+{
+  "folders": [
+    {
+      "path": ".",
+      "name": "grills (frontend + docs)"
+    },
+    {
+      "path": "C:\\Users\\manav\\Studio\\grills",
+      "name": "grills-wp (backend)"
+    }
+  ],
+
+  "settings": {
+    // ---- Line endings & whitespace hygiene -------------------------------
+    "files.eol": "\n",
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+
+    // ---- Explorer noise reduction ----------------------------------------
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/.git": true,
+      "**/.next": true,
+      "**/wp-admin": true,
+      "**/wp-includes": true,
+      "**/wp-content/uploads": true,
+      "**/wp-content/upgrade": true,
+      "**/wp-content/plugins": true
+    },
+
+    // ---- Search: same exclusions plus build output -----------------------
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/.git": true,
+      "**/.next": true,
+      "**/wp-admin": true,
+      "**/wp-includes": true,
+      "**/wp-content/uploads": true,
+      "**/wp-content/upgrade": true,
+      "**/wp-content/plugins": true,
+      "**/dist": true,
+      "**/build": true,
+      "**/out": true,
+      "**/coverage": true,
+      "**/*.min.js": true,
+      "**/*.min.css": true,
+      "**/package-lock.json": true
+    },
+
+    // ---- File watcher ----------------------------------------------------
+    // WordPress core ships tens of thousands of files. Watching them pins a CPU
+    // core and slows the window; these paths never change during development.
+    "files.watcherExclude": {
+      "**/node_modules/**": true,
+      "**/.git/**": true,
+      "**/.next/**": true,
+      "**/wp-admin/**": true,
+      "**/wp-includes/**": true,
+      "**/wp-content/uploads/**": true,
+      "**/wp-content/upgrade/**": true,
+      "**/wp-content/plugins/**": true
+    },
+
+    // ---- Language associations -------------------------------------------
+    "files.associations": {
+      "*.php": "php"
+    },
+
+    // ---- Formatting ------------------------------------------------------
+    "editor.formatOnSave": true,
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[jsonc]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[css]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[scss]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
+  },
+
+  "extensions": {
+    "recommendations": [
+      "bmewburn.vscode-intelephense-client",
+      "wordpresstoolbox.wordpress-toolbox",
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "bradlc.vscode-tailwindcss",
+      "graphql.vscode-graphql",
+      "graphql.vscode-graphql-syntax",
+      "editorconfig.editorconfig"
+    ]
+  }
+}

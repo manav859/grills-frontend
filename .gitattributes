@@ -1,0 +1,63 @@
+# .gitattributes
+#
+# Purpose: enforce consistent line endings across the repository.
+#
+# This project is developed on Windows but deployed to Linux. Without these
+# rules, files committed from Windows can carry CRLF endings into the
+# repository, which breaks shell scripts, produces noisy diffs, and can cause
+# subtle failures on the Linux deployment target. Every text file is stored and
+# checked out with LF, regardless of the contributor's platform.
+
+# Baseline: detect text files and normalize them to LF everywhere.
+* text=auto eol=lf
+
+# ---------------------------------------------------------------------------
+# Explicit text files (LF)
+# ---------------------------------------------------------------------------
+*.php         text eol=lf
+*.js          text eol=lf
+*.jsx         text eol=lf
+*.ts          text eol=lf
+*.tsx         text eol=lf
+*.json        text eol=lf
+*.css         text eol=lf
+*.scss        text eol=lf
+*.html        text eol=lf
+*.md          text eol=lf
+*.yml         text eol=lf
+*.yaml        text eol=lf
+*.xml         text eol=lf
+*.txt         text eol=lf
+*.sql         text eol=lf
+*.sh          text eol=lf
+.env.example  text eol=lf
+
+# ---------------------------------------------------------------------------
+# Windows batch files require CRLF to execute correctly
+# ---------------------------------------------------------------------------
+*.bat         text eol=crlf
+*.cmd         text eol=crlf
+
+# ---------------------------------------------------------------------------
+# Binary files: no line-ending conversion, no diffing
+# NOTE: .svg is technically text, but is treated as binary here to avoid diff
+# noise on generated/exported assets.
+# ---------------------------------------------------------------------------
+*.png         binary
+*.jpg         binary
+*.jpeg        binary
+*.gif         binary
+*.webp        binary
+*.avif        binary
+*.ico         binary
+*.svg         binary
+*.woff        binary
+*.woff2       binary
+*.ttf         binary
+*.otf         binary
+*.eot         binary
+*.pdf         binary
+*.zip         binary
+*.mp4         binary
+*.webm        binary
+*.mp3         binary
