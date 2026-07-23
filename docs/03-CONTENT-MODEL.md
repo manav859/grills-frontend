@@ -438,6 +438,54 @@ the term image) use the WordPress media modal.
 The featured image (`_thumbnail_id`) uses WordPress's own Featured Image box and
 needs none of this.
 
+### 2.8 Attachment meta: blur placeholder
+
+One meta key is registered on the **attachment** post type rather than on any
+project post type. It is not editor-facing and appears in no meta box.
+
+| Field Label | Meta Key | Object | Type | Single | Required | Default | Sanitize Callback | Validation | Notes |
+|---|---|---|---|---|---|---|---|---|---|
+| Blur Placeholder | `_gotg_blur_data_url` | `attachment` | `string` | `true` | No | `''` | `gotg_sanitize_data_uri` | A base64 `data:image/*` URI, ≤ 4 KB | API `ImageObject.blurDataUrl?`. Read by `gotg_shape_image()` — `04-API-CONTRACT.md` §6.1. Omitted from the payload when empty. |
+
+This backs the blur-up placeholder required by
+`08-PERFORMANCE-SEO-A11Y.md`: a tiny inlined image is painted while the real one
+loads, which holds the layout and keeps CLS at zero. It is stored per attachment
+because the placeholder is a property of the image, not of whatever post happens
+to reference it — one generated value serves every context the image appears in.
+
+Registration:
+
+```php
+<?php
+register_post_meta(
+	'attachment',
+	'_gotg_blur_data_url',
+	array(
+		'type'              => 'string',
+		'single'            => true,
+		'default'           => '',
+		'show_in_rest'      => false,
+		'sanitize_callback' => 'gotg_sanitize_data_uri',
+		'auth_callback'     => 'gotg_meta_auth_callback',
+	)
+);
+```
+
+Sanitizer rules — this value is emitted into the page, so it is validated
+structurally rather than merely escaped:
+
+| Rule | Reason |
+|---|---|
+| Must match `data:image/{png,jpeg,webp,gif};base64,` followed by valid base64 | Anything else is not a placeholder. An `svg+xml` or `text/html` data URI is rejected — SVG can carry script. |
+| Payload must decode as base64 | A malformed value renders as a broken image |
+| Rejected input returns `''` | The key is then omitted and the image renders without a placeholder, which is a degraded but correct page |
+| ≤ 4 KB | A placeholder is a 10×10-ish thumbnail. Anything larger is not serving its purpose and bloats every payload the image appears in. |
+
+`[ASSUMPTION] Generation is not yet specified. The value is written by a
+background process on upload — most likely a `wp_generate_attachment_metadata`
+hook. Until that exists the key is registered, empty, and omitted from every
+payload, which is the correct behaviour for an image with no placeholder.`
+
 ---
 
 ## 3. CPT: `gotg_menu_item`
