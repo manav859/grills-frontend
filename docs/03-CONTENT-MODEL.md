@@ -458,7 +458,7 @@ add_action( 'init', 'gotg_register_menu_item_post_type' );
 
 | Field Label | Meta Key | Type | Single | Required | Default | Sanitize Callback | Validation | Editor Help Text | Notes |
 |---|---|---|---|---|---|---|---|---|---|
-| Price Variants | `_gotg_price_variants` | `array` | `true` | Yes | one row, empty label, amount `0` | `gotg_sanitize_price_variants` | 1–6 rows; each `amount` numeric, ≥ 0, ≤ 999, 2 decimals; each `label` ≤ 24 chars; at least one row required | Add one row per size or portion this item is sold in. Most items have a single row — leave its label empty. Use the label for things like "half rack" or "per lb". | API `priceVariants: PriceVariant[]`. See §3.4. |
+| Price Variants | `_gotg_price_variants` | `array` | `true` | Yes | `[]` | `gotg_sanitize_price_variants` | 1–6 rows; each `amount` numeric, ≥ 0, ≤ 999, 2 decimals; each `label` ≤ 24 chars; at least one row required | Add one row per size or portion this item is sold in. Most items have a single row — leave its label empty. Use the label for things like "half rack" or "per lb". | API `priceVariants: PriceVariant[]`. See §3.4. |
 | Description | `_gotg_description` | `string` | `true` | No | — | `sanitize_textarea_field` | ≤ 240 chars; no HTML | Shown under the item name. One or two sentences. Plain text only. | API `description?: string`. Omitted when empty. |
 | Availability | `_gotg_availability` | `array` | `true` | Yes | `["breakfast","lunch","dinner"]` | `gotg_sanitize_daypart_list` | Non-empty; every value in `breakfast`, `lunch`, `dinner` | Which dayparts this item is served. At least one is required. | API `availability: Daypart[]`. Rendered as three checkboxes. |
 | Is Featured | `_gotg_is_featured` | `boolean` | `true` | No | `false` | `rest_sanitize_boolean` | — | Featured items appear in the highlights row on the home page. Six are shown at most. | API `isFeatured: boolean`. The six-item cap is enforced at query time, not in the editor. |
@@ -468,6 +468,13 @@ add_action( 'init', 'gotg_register_menu_item_post_type' );
 | Dietary Tags | *(taxonomy `gotg_dietary`)* | — | — | No | — | — | Terms must already exist; new terms cannot be created here | Select all that apply. Leave empty if unsure — do not guess. | Not meta. Rendered as checkboxes; the "Add New" control is removed. |
 | Dish Photo | *(core `_thumbnail_id`)* | — | — | No | — | — | ≥ 800×600, JPEG/PNG/WebP, ≤ 5 MB | Landscape photo of the plated item. Not required — items without a photo render as text. | API `image?: ImageObject`, size `gotg_card`. |
 | Order Within Section | *(core `menu_order`)* | — | — | No | `0` | — | Integer | Lower numbers appear first within the section. | Set via the relabelled Page Attributes box. |
+
+**An item with no price entered has no price rows, not a zero-priced row.** The
+registered default is an empty array, matching the registration code in §3.5. A
+default of one row at amount `0` would publish a free item for every item an
+editor has not finished — the editor sees a blank repeater either way, but the
+payload does not carry a price that nobody set. The meta box renders one empty
+row for convenience; that row reaches meta only once it has an amount.
 
 ### 3.3 Meta box specification
 
@@ -551,18 +558,44 @@ an empty label, and an editor who never adds a second row never sees a variant
 concept. This is recorded as ADR-0025's consequence, and it retires risk R-06
 from `11-PROJECT-PLAN.md`.
 
-Sanitizer:
+Sanitizer.
+
+This is the most consequential sanitizer in the project, and its rules are
+stated exactly:
+
+| Input | Result | Why |
+|---|---|---|
+| Not an array | `[]` | Nothing usable |
+| Row that is not an array | Dropped | Malformed |
+| Row with no label and no amount | Dropped | An empty repeater row is not data |
+| Row whose amount is non-numeric | **Dropped** | See below |
+| Row whose amount is negative | Dropped | A price cannot be below zero |
+| Amount as `"$29.50"` or `"1,299"` | Coerced | A currency symbol, thousands separator, or stray space is a paste artefact, not a different number |
+| Amount with more than 2 decimals | Rounded to 2 | Money has two decimal places |
+| Surviving rows | Reindexed, order preserved, capped at 6 | §2.6 reindexing rule; the cap is §14 |
+
+**A non-numeric amount drops its row rather than coercing.** `(float)` casting is
+the obvious implementation and it is wrong here: `round( (float) 'market price',
+2 )` yields `0.0`, which publishes a free item. An absent row is a visible gap an
+editor can act on; a $0.00 item is a silent pricing error that reaches customers.
+The same reasoning drops negatives rather than clamping them to zero.
+
+Range rejection — the 0–999 rule — remains the validator's job, because a
+sanitizer cannot tell the editor why a value was refused (§2.4). The rejections
+above are different in kind: they are values with no coherent reading at all, not
+values outside a permitted band.
 
 ```php
 <?php
 /**
  * Normalises the price variants array.
  *
- * Drops malformed rows, coerces types, reindexes, and caps row count.
+ * Drops malformed rows, drops rows whose amount is not a non-negative number,
+ * coerces types, reindexes, and caps the row count at six.
  * Rejection of out-of-range values is the validator's job, not this function's.
  *
  * @param mixed $value Raw meta value.
- * @return array Normalised list of variant rows.
+ * @return array<int, array{label: string, amount: float}> Normalised variant rows.
  */
 function gotg_sanitize_price_variants( $value ) {
 	if ( ! is_array( $value ) ) {
@@ -572,12 +605,36 @@ function gotg_sanitize_price_variants( $value ) {
 	$clean = array();
 
 	foreach ( $value as $row ) {
-		if ( ! is_array( $row ) || ! isset( $row['amount'] ) ) {
+		if ( ! is_array( $row ) ) {
 			continue;
 		}
 
-		$label  = isset( $row['label'] ) ? sanitize_text_field( (string) $row['label'] ) : '';
-		$amount = round( (float) $row['amount'], 2 );
+		$label = isset( $row['label'] ) && is_scalar( $row['label'] )
+			? sanitize_text_field( (string) $row['label'] )
+			: '';
+
+		$amount = isset( $row['amount'] ) ? $row['amount'] : null;
+
+		if ( is_string( $amount ) ) {
+			// Tolerate a currency symbol, thousands separators, and stray spaces.
+			$amount = trim( preg_replace( '/[$,\s]/', '', $amount ) );
+		}
+
+		// A row with neither a label nor an amount is a repeater artefact.
+		if ( '' === $label && ( null === $amount || '' === $amount ) ) {
+			continue;
+		}
+
+		// "market price" must not become 0.0.
+		if ( ! is_numeric( $amount ) ) {
+			continue;
+		}
+
+		$amount = round( (float) $amount, 2 );
+
+		if ( $amount < 0 ) {
+			continue;
+		}
 
 		$clean[] = array(
 			'label'  => $label,
