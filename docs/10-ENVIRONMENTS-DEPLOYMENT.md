@@ -1,7 +1,7 @@
 # 10 — Environments and Deployment
 
 Status: **Living**
-Last reviewed: 2026-07-22
+Last reviewed: 2026-07-23
 
 The local environment described in §1 and §4 is **already established and
 implemented**. It is documented, not proposed. Do not substitute an alternative
@@ -29,9 +29,54 @@ The two repositories are opened together through the multi-root workspace at
 `03-CONTENT-MODEL.md` matching its PHP registration matching its TypeScript
 interface — cannot be verified from a single root.
 
-`[ASSUMPTION] Both repositories will have remotes on GitHub under the same
-owner. Remote URLs are not yet established. [NEEDS CLIENT INPUT] — repository
-ownership and access model.`
+### 1.1 Repository Configuration
+
+Both repositories have GitHub remotes under the same owner, `manav859`. Both are
+private.
+
+| Repo | Local path | Remote | Visibility | Default branch |
+|---|---|---|---|---|
+| Backend | `C:\Users\manav\Studio\grills` | https://github.com/manav859/grills | Private | `main` |
+| Frontend + docs | `D:\work\grills` | https://github.com/manav859/grills-frontend | Private | `main` |
+
+`[NEEDS CLIENT INPUT] Long-term repository ownership — whether these transfer to
+a client-owned GitHub organisation at handover, and the access model for it.`
+
+**The two repositories are committed and pushed separately.** They share no
+history and no remote. A change that spans both — a contract change being the
+common case (§7.5) — is two commits and two pushes, one per repository, with
+messages that reference the same change. There is no mechanism that keeps them
+in step automatically; the ordering rules in §7.5 are what make a spanning
+change safe.
+
+#### What is not in git
+
+The backend repository tracks only `wp-content/mu-plugins/` and
+`wp-content/themes/gotg-headless/`. Everything else Studio generates is
+untracked, and the reason differs by asset:
+
+| Asset | In git | Why |
+|---|---|---|
+| WordPress core, `wp-admin/`, `wp-includes/` | No | Reinstallable at a pinned version |
+| `wp-content/plugins/` | No | The three free plugins in `01-TECH-STACK.md` §4 reinstall from source |
+| `wp-content/uploads/` | No | Local uploads are seed-grade; production uploads are backed up by the host (§8.1) |
+| `wp-config.php` | No | Environment-specific, holds the shared secrets (§3.3) |
+| `wp-content/database/` | **No** | Not reproducible — see below |
+
+The first four are **reproducible**: losing them costs an install, not content.
+`wp-content/database/` is not. It holds the local SQLite database, which is the
+**only copy of local content** — every post, term, and meta value authored in
+`wp-admin` since the last seed run. It exists in no other repository, on no
+remote, and in no host backup, because §8.1's automated backups cover production
+only and §2 classifies the local environment as disposable.
+
+That classification holds only for content the seed script reproduces
+(`tools/seed-content.php`, §4.2 step 8, idempotent). Content authored beyond the
+seed is unique to that file and is lost with it. Such content is backed up by
+the manual procedure in §8 — the same off-site principle as §8.2, applied to the
+SQLite file rather than a MySQL dump. Do not solve this by committing the
+database: it is gitignored deliberately, it is binary, and it would put content
+into a code repository.
 
 ---
 
@@ -54,7 +99,7 @@ ownership and access model.`
 | Analytics | Disabled | Disabled | Disabled | Enabled |
 | Sentry environment | Not initialised | `preview` | `staging` | `production` |
 | Sentry `tracesSampleRate` | — | 1.0 | 1.0 | 0.1 |
-| Backups | None (disposable) | None | Weekly | Daily, 30-day retention |
+| Backups | None automated — manual copy of the SQLite file (§8.1) | None | Weekly | Daily, 30-day retention |
 | Deploys from | — | Any PR branch | `main` | Tagged release or manual promotion |
 
 `[NEEDS CLIENT INPUT] {domain} is unresolved — DP-14. Every URL above is a
@@ -280,7 +325,7 @@ Assumes Windows 11 with git installed.
 3. Replace the generated site directory contents with the repository:
    ```bash
    cd /c/Users/manav/Studio
-   git clone <backend-remote> grills-repo
+   git clone https://github.com/manav859/grills.git grills-repo
    ```
    Then copy `wp-content/mu-plugins/` and `wp-content/themes/gotg-headless/`
    from `grills-repo` into the Studio site, and initialise the Studio site
@@ -324,7 +369,7 @@ Assumes Windows 11 with git installed.
 
 ```bash
 cd /d/work
-git clone <frontend-remote> grills
+git clone https://github.com/manav859/grills-frontend.git grills
 cd grills/frontend
 cp .env.example .env.local
 # Set WP_API_BASE_URL to the Studio site URL and port from step 4.2.
@@ -714,9 +759,24 @@ in that order.
 | Field definitions | Every push | Indefinite | `mu-plugins/gotg/meta.php` in the backend repository | Continuously (CI registers them) |
 | Documentation | Every push | Indefinite | GitHub | — |
 | Vercel deployments | Every deploy | Per Vercel retention | Vercel | Via instant rollback |
+| Local SQLite database, `wp-content/database/` | Manual, before any risky local operation and after any significant authoring session | Keep the last 3 | Outside the repository working copy — it is gitignored and must stay that way (§1.1) | On copy back |
 
 WordPress core and third-party plugins are not backed up — they are reinstallable
-from source at a pinned version.
+from source at a pinned version. The same applies to `wp-content/uploads/` and
+`wp-config.php` locally; §1.1 lists which untracked backend paths are
+reproducible and which are not.
+
+The local database is the one local asset no other copy exists of. Back it up by
+copying the directory with WordPress Studio's site stopped, so no write is in
+flight:
+
+```bash
+cp -r /c/Users/manav/Studio/grills/wp-content/database \
+      "/c/Users/manav/Studio/_backups/grills-db-$(date +%Y-%m-%d)"
+```
+
+The destination is outside the Studio site directory so a clean reinstall of the
+site cannot take the backups with it.
 
 ### 8.2 Off-site copy
 
