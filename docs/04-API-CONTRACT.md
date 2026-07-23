@@ -583,6 +583,15 @@ returned empty:
 
 ## 5. Endpoints
 
+**There is no page-level `intro` field.** An earlier revision declared `intro?:
+string` on the Menu, Events, About, and Contact responses. Nothing backed it:
+`03-CONTENT-MODEL.md` gives a `page` only `_gotg_page_blocks` and the five SEO
+keys, so the field could never be populated by any editor action. It has been
+removed rather than given a meta key, because the page builder already solves
+this — a `text` block placed first is an intro, and it is one mechanism instead
+of two that do the same thing. A section-level `MenuSection.intro` does exist and
+is backed by `_gotg_intro` term meta; that is a different field.
+
 ### 5.1 `GET /wp-json/gotg/v1/home`
 
 Serves: `/`
@@ -736,7 +745,6 @@ export interface MenuResponse {
   _global: GlobalData;
   seo: SeoFields;
   title: string;
-  intro?: string;
   blocks: PageBlock[];
   dayparts: DaypartWindow[];
   defaultDaypart: Daypart | 'auto' | 'all';
@@ -773,7 +781,6 @@ Example response:
     "noindex": false
   },
   "title": "Menu",
-  "intro": "Served all day, every day. Prices do not include tax or gratuity.",
   "blocks": [],
   "dayparts": [
     { "key": "breakfast", "label": "Breakfast", "starts": "06:00", "ends": "11:00" },
@@ -895,7 +902,6 @@ export interface EventsResponse {
   _global: GlobalData;
   seo: SeoFields;
   title: string;
-  intro?: string;
   blocks: PageBlock[];
   recurring: RecurringProgramme | null;
   upcoming: EventItem[];
@@ -925,7 +931,6 @@ Example response:
     "noindex": false
   },
   "title": "Events",
-  "intro": "Live music on the patio every Friday and Saturday night.",
   "blocks": [],
   "recurring": {
     "heading": "Live music every Friday & Saturday",
@@ -1005,7 +1010,6 @@ export interface AboutResponse {
   _global: GlobalData;
   seo: SeoFields;
   title: string;
-  intro?: string;
   blocks: PageBlock[];
 }
 ```
@@ -1021,7 +1025,6 @@ Example response:
     "noindex": false
   },
   "title": "About",
-  "intro": "A golfer and a pitmaster walked into a clubhouse kitchen.",
   "blocks": [
     {
       "type": "text",
@@ -1085,7 +1088,6 @@ export interface ContactResponse {
   _global: GlobalData;
   seo: SeoFields;
   title: string;
-  intro?: string;
   blocks: PageBlock[];
   formEnabled: boolean;
   formSubjects: string[];
@@ -1108,7 +1110,6 @@ Example response:
     "noindex": false
   },
   "title": "Contact",
-  "intro": "Call us — someone in the kitchen will pick up. For catering and private events, use the form below.",
   "blocks": [
     {
       "type": "cta_band",
