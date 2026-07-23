@@ -1192,6 +1192,37 @@ function gotg_shape_image( $attachment_id, $size = 'gotg_card' ) {
 }
 ```
 
+### 6.1.1 Link shaping and `tel:` normalisation
+
+Every `LinkObject` and `CtaLink` is emitted through one helper, which derives
+`isExternal` and normalises the href.
+
+| Rule | Detail |
+|---|---|
+| `isExternal` | `false` for a root-relative path (`/menu`) or a fragment (`#hours`). `true` for any href carrying a scheme whose host differs from the site host, and always `true` for `tel:` and `mailto:`. |
+| **`tel:` is emitted in E.164** | `tel:8058422947` and `tel:(805) 842-2947` both become `tel:+18058422947`. A ten-digit number is assumed to be `+1`. |
+| `phoneHref` | Derived from `location.phone` by the same rule, so the display number and the dialable number cannot drift. |
+
+Editors type a phone number in display form — that is what belongs in a button
+label, and asking for E.164 in a URL field invites a typo in the one field that
+must work on a phone. The normalisation happens once at the shaper, so `href` is
+always dialable regardless of how the number was entered. `label` is untouched:
+`{ "label": "Call 805-842-2947", "href": "tel:+18058422947" }`.
+
+### 6.1.2 Server-resolved fields
+
+Three response values have no editable source field. They are derived, and the
+derivation is fixed rather than configurable.
+
+| Field | Derivation | Why it is not editable |
+|---|---|---|
+| `featured_items.cta.href` | Always `/menu` | The block's purpose is to send a visitor to the full menu. The content model supplies `cta_label` and no URL, because a "see the full menu" button pointing anywhere else is a mistake, not a preference. The label remains editable. |
+| `events_preview.cta.href` | Always `/events` | As above. |
+| `formEnabled` | `true` when `form_recipient_email` is set and is a valid address | A form with no destination is not enabled. Rendering one would collect enquiries and discard them silently, which is worse than showing the phone number at full width — the documented behaviour when `formEnabled` is `false` (§5.5). |
+
+Both CTA hrefs are internal routes fixed by `02-INFORMATION-ARCHITECTURE.md`. If
+either route is ever renamed, these derivations change with it in one place.
+
 ### 6.2 HTML sanitisation
 
 Fields ending in `Html` are the only fields containing markup. They pass through
