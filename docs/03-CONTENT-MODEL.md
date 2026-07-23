@@ -97,6 +97,35 @@ in `04-API-CONTRACT.md` under a camelCase form. The transform is mechanical:
 column. There is no automatic transform in code — each shaper function names its
 output keys literally, so the mapping is auditable by reading the shaper.
 
+### 0.4 Default values
+
+Every field table carries a Default column. The convention is that a field
+documented with no default registers the empty value for its type — `''` for a
+string, `[]` for an array, `0` for a count — so a shaper never has to guard a
+missing key.
+
+**Three fields are a deliberate exception and register no default at all.**
+
+| Field | Section | Why no default |
+|---|---|---|
+| `_gotg_latitude` | §5.1 | `0.0` is a real coordinate in the Gulf of Guinea |
+| `_gotg_longitude` | §5.1 | As above |
+| `_gotg_cover_charge` | §4.2 | `0.00` is a real price meaning "free" |
+
+For these three the type's empty value is indistinguishable from a value an
+editor might legitimately have entered, so a default would assert a fact rather
+than mark an absence. They read as empty until set, and the shaper omits them.
+
+**Do not "fix" this by adding defaults.** A registered `0.0` on latitude and
+longitude would place an unconfigured restaurant off the coast of West Africa and
+render a static map of open ocean; a registered `0.0` on cover charge would
+advertise a ticketed event as free. This exception is recorded here so a later
+consistency pass does not quietly remove it.
+
+The same reasoning governs empty *collection* defaults where a placeholder row
+would be invalid by the field's own rules — `_gotg_price_variants` (§3.2) and
+`social_links` (§11.2) both default to `[]` for this reason.
+
 ---
 
 ## 1. Object Inventory
@@ -854,7 +883,7 @@ add_action( 'init', 'gotg_register_event_post_type' );
 | Short Summary | `_gotg_summary` | `string` | `true` | Yes | — | `sanitize_textarea_field` | 1–160 chars; no HTML | One sentence shown on event cards and used as the search-result description. | API `summary: string`. |
 | Ticketed | `_gotg_is_ticketed` | `boolean` | `true` | No | `false` | `rest_sanitize_boolean` | — | Turn on if attendance requires a ticket or a cover charge. | API `isTicketed: boolean`. |
 | Ticket / Info URL | `_gotg_ticket_url` | `string` | `true` | No | — | `esc_url_raw` | Valid URL | Where to buy tickets or read more. | API `ticketUrl?`. Shown only when Ticketed is on. |
-| Cover Charge | `_gotg_cover_charge` | `number` | `true` | No | — | `gotg_sanitize_money` | ≥ 0, ≤ 999, 2 decimals | Cover charge in USD. Leave empty if free. | API `coverCharge?`. Shown only when Ticketed is on. |
+| Cover Charge | `_gotg_cover_charge` | `number` | `true` | No | **none registered** — see §0.4 | `gotg_sanitize_money` | ≥ 0, ≤ 999, 2 decimals | Cover charge in USD. Leave empty if free. | API `coverCharge?`. Shown only when Ticketed is on. No default is registered deliberately: `0.00` is a real price meaning free. Reads as empty until set; the shaper omits the key. |
 | Is Recurring Instance | `_gotg_is_recurring_instance` | `boolean` | `true` | No | `false` | `rest_sanitize_boolean` | — | Turn on if this is one night of the standing Friday and Saturday live music. | API `isRecurringInstance: boolean`. Prevents duplicating the standing programme card. |
 | Event Photo | *(core `_thumbnail_id`)* | — | — | No | — | — | ≥ 1200×800 | Photo of the performer or event. | API `image?: ImageObject`, size `gotg_card`. |
 | Description | *(core `post_content`)* | — | — | No | — | `wp_kses` on read | Allowed tags: `p`, `br`, `strong`, `em`, `a`, `ul`, `ol`, `li` | Full description. Keep it short — two or three paragraphs. | API `descriptionHtml?`. Sanitised at shaping time, not at save time, so an allow-list change does not require re-saving posts. |
@@ -1000,8 +1029,8 @@ position above.
 | State | `_gotg_state` | `string` | `true` | Yes | `CA` | `gotg_sanitize_state` | Exactly 2 chars, `[A-Z]{2}` | Two-letter state code. | API `state`. Uppercased by the sanitizer. |
 | Postal Code | `_gotg_postal_code` | `string` | `true` | Yes | — | `sanitize_text_field` | `^\d{5}(-\d{4})?$` | `[NEEDS CLIENT INPUT]` — DP-01. | API `postalCode`. |
 | Country | `_gotg_country` | `string` | `true` | Yes | `US` | `gotg_sanitize_state` | Exactly 2 chars | ISO country code. | API `country`. |
-| Latitude | `_gotg_latitude` | `number` | `true` | Yes | — | `floatval` | −90 to 90 | Decimal latitude. Copy from Google Maps. | API `latitude`. Feeds `GeoCoordinates` schema and the static map. |
-| Longitude | `_gotg_longitude` | `number` | `true` | Yes | — | `floatval` | −180 to 180 | Decimal longitude. | API `longitude`. |
+| Latitude | `_gotg_latitude` | `number` | `true` | Yes | **none registered** — see §0.4 | `floatval` | −90 to 90 | Decimal latitude. Copy from Google Maps. | API `latitude`. Feeds `GeoCoordinates` schema and the static map. No default is registered deliberately: `0.0` is a real coordinate. Reads as empty until set. |
+| Longitude | `_gotg_longitude` | `number` | `true` | Yes | **none registered** — see §0.4 | `floatval` | −180 to 180 | Decimal longitude. | API `longitude`. As above — `0.0` latitude and longitude together point at open ocean in the Gulf of Guinea. |
 | Phone | `_gotg_phone` | `string` | `true` | Yes | `805-842-2947` | `sanitize_text_field` | `^\d{3}-\d{3}-\d{4}$` | Format as 805-842-2947. | API `phone` (display) and `phoneHref` (`tel:+18058422947`, derived in the shaper). |
 | Email | `_gotg_email` | `string` | `true` | No | — | `sanitize_email` | Valid email | Public enquiry address. `[NEEDS CLIENT INPUT]` — DP-18. | API `email?`. |
 | Directions URL | `_gotg_directions_url` | `string` | `true` | Yes | — | `esc_url_raw` | Valid URL | Google Maps link used by the "Get Directions" button. | API `directionsUrl`. |
@@ -1570,7 +1599,7 @@ Cardinality 1..1. If unset, every endpoint returns HTTP 500 with code
 
 | Field Label | Option Key | Type | Required | Default | Sanitize | Validation | Editor Help Text | Notes |
 |---|---|---|---|---|---|---|---|---|
-| Social Links | `social_links` | array of rows | No | 1 row (Instagram) | `gotg_sanitize_social_links` | ≤ 6 rows | One row per social profile. | API `_global.social[]`. Repeater per §2.6. |
+| Social Links | `social_links` | array of rows | No | `[]` | `gotg_sanitize_social_links` | ≤ 6 rows | One row per social profile. | API `_global.social[]`. Repeater per §2.6. The empty default is intentional — see below. |
 | — Platform | `social_links[].platform` | string | Yes | `instagram` | `sanitize_key` | One of `instagram`, `facebook`, `yelp`, `google`, `tripadvisor`, `youtube` | — | API `platform`. Determines the icon. |
 | — URL | `social_links[].url` | string | Yes | — | `esc_url_raw` | Absolute https URL | Full profile URL including https://. | API `url`. |
 | — Handle | `social_links[].handle` | string | No | — | `sanitize_text_field` | ≤ 40 chars | Username without the @ symbol. Used as the accessible link label. | API `handle?`. |
@@ -1578,6 +1607,14 @@ Cardinality 1..1. If unset, every endpoint returns HTTP 500 with code
 | Reservation URL | `reservation_url` | string | No | — | `esc_url_raw` | Absolute https URL | Link for the Reserve button. Leave empty to hide the button entirely. `[NEEDS CLIENT INPUT]` — DP-04. | API `_global.actions.reservationUrl?`. |
 | Online Ordering URL | `ordering_url` | string | No | — | `esc_url_raw` | Absolute https URL | Link for the Order Online button. Leave empty to hide it. `[NEEDS CLIENT INPUT]` — DP-08. | API `_global.actions.orderingUrl?`. |
 | Gift Card URL | `gift_card_url` | string | No | — | `esc_url_raw` | Absolute https URL | Leave empty to hide gift card links. `[NEEDS CLIENT INPUT]` — DP-07. | API `_global.actions.giftCardUrl?`. |
+
+**`social_links` defaults to an empty array, not to a placeholder Instagram
+row.** `url` is required on every social row, so a seeded row with an empty URL
+would fail the field's own validation the moment it was saved, and
+`gotg_sanitize_social_links()` drops any row with no destination — a social link
+that points nowhere is not a link. The real Instagram URL is unresolved client
+input; until it arrives the correct state is no rows, and `_global.social` is an
+empty array. This follows the convention in §0.4.
 
 ### 11.3 Tab: Navigation
 
