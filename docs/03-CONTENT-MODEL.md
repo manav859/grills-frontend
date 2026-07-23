@@ -260,12 +260,41 @@ Two layers, both required:
 
 | Layer | Runs when | Responsibility |
 |---|---|---|
-| `sanitize_callback` on `register_post_meta()` | On every `update_post_meta()` call, from any code path including WP-CLI and the seed script | Type coercion and unconditional cleaning: `sanitize_text_field`, `absint`, `floatval`, array shape normalisation |
+| `sanitize_callback` on `register_post_meta()` | On every `update_post_meta()` call, from any code path including WP-CLI and the seed script | Type coercion and unconditional cleaning: `sanitize_text_field`, `absint`, array shape normalisation |
 | Save handler validation | Only on an admin form submission | Business rules that can *reject*: length limits, ranges, enum membership, cross-field rules such as end-after-start |
 
 A `sanitize_callback` cannot reject a value — returning something different from
 what was submitted is its only option, and silently changing an editor's input is
 worse than telling them it was wrong. That is why validation is separate.
+
+**Never register a PHP internal function directly as a `sanitize_callback`.
+Always wrap it in a `gotg_`-prefixed userland function.**
+
+WordPress does not call the callback with one argument. It dispatches through the
+`sanitize_{object_type}_meta_{meta_key}` filter with **four**: the value, the meta
+key, the object type, and the object subtype. A userland PHP function ignores
+arguments it does not declare, but an *internal* function with strict arity
+throws `ArgumentCountError` on PHP 8 — which surfaces as a fatal error on any
+write, not as a validation failure:
+
+```
+Uncaught ArgumentCountError: floatval() expects exactly 1 argument, 4 given
+  in wp-includes/class-wp-hook.php:341
+```
+
+This is a whole-site outage triggered by saving a post, so it is a hard rule
+rather than a style preference. The safe-by-accident cases are not a defence:
+`absint()`, `sanitize_text_field()`, `sanitize_key()`, `esc_url_raw()` and
+`rest_sanitize_boolean()` are all *userland* WordPress functions and tolerate the
+extra arguments. `floatval()`, `intval()`, `trim()`, `strtoupper()` and friends
+are internal and do not. Wrapping every callback removes the need to know which
+is which.
+
+| Instead of | Register |
+|---|---|
+| `floatval` | `gotg_sanitize_float` |
+| `intval` | `absint` (userland) or a `gotg_` wrapper |
+| `trim`, `strtoupper`, any other internal | A `gotg_` wrapper |
 
 ### 2.5 Validation error surfacing
 
@@ -1029,8 +1058,17 @@ position above.
 | State | `_gotg_state` | `string` | `true` | Yes | `CA` | `gotg_sanitize_state` | Exactly 2 chars, `[A-Z]{2}` | Two-letter state code. | API `state`. Uppercased by the sanitizer. |
 | Postal Code | `_gotg_postal_code` | `string` | `true` | Yes | — | `sanitize_text_field` | `^\d{5}(-\d{4})?$` | `[NEEDS CLIENT INPUT]` — DP-01. | API `postalCode`. |
 | Country | `_gotg_country` | `string` | `true` | Yes | `US` | `gotg_sanitize_state` | Exactly 2 chars | ISO country code. | API `country`. |
-| Latitude | `_gotg_latitude` | `number` | `true` | Yes | **none registered** — see §0.4 | `floatval` | −90 to 90 | Decimal latitude. Copy from Google Maps. | API `latitude`. Feeds `GeoCoordinates` schema and the static map. No default is registered deliberately: `0.0` is a real coordinate. Reads as empty until set. |
-| Longitude | `_gotg_longitude` | `number` | `true` | Yes | **none registered** — see §0.4 | `floatval` | −180 to 180 | Decimal longitude. | API `longitude`. As above — `0.0` latitude and longitude together point at open ocean in the Gulf of Guinea. |
+| Latitude | `_gotg_latitude` | `number` | `true` | Yes | **none registered** — see §0.4 | `gotg_sanitize_float` | −90 to 90 | Decimal latitude. Copy from Google Maps. | API `latitude`. Feeds `GeoCoordinates` schema and the static map. No default is registered deliberately: `0.0` is a real coordinate. Reads as empty until set. |
+| Longitude | `_gotg_longitude` | `number` | `true` | Yes | **none registered** — see §0.4 | `gotg_sanitize_float` | −180 to 180 | Decimal longitude. | API `longitude`. As above — `0.0` latitude and longitude together point at open ocean in the Gulf of Guinea. |
+
+**The coordinate fields use `gotg_sanitize_float`, not `floatval`.** Registering
+`floatval` directly is a fatal error, not a style issue: WordPress passes four
+arguments to a `sanitize_callback` and `floatval` is a PHP internal accepting
+exactly one, so PHP 8 throws `ArgumentCountError` and the site returns a critical
+error on every location save. This was found by REST verification, not by review.
+See §2.4 for the general rule. `gotg_sanitize_float` also returns `''` rather
+than `0.0` for non-numeric input, so an unparseable coordinate stays absent
+instead of relocating the restaurant to the Gulf of Guinea (§0.4).
 | Phone | `_gotg_phone` | `string` | `true` | Yes | `805-842-2947` | `sanitize_text_field` | `^\d{3}-\d{3}-\d{4}$` | Format as 805-842-2947. | API `phone` (display) and `phoneHref` (`tel:+18058422947`, derived in the shaper). |
 | Email | `_gotg_email` | `string` | `true` | No | — | `sanitize_email` | Valid email | Public enquiry address. `[NEEDS CLIENT INPUT]` — DP-18. | API `email?`. |
 | Directions URL | `_gotg_directions_url` | `string` | `true` | Yes | — | `esc_url_raw` | Valid URL | Google Maps link used by the "Get Directions" button. | API `directionsUrl`. |
