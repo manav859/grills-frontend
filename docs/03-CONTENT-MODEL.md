@@ -1552,7 +1552,7 @@ function gotg_register_settings() {
 		)
 	);
 }
-add_action( 'admin_init', 'gotg_register_settings' );
+add_action( 'init', 'gotg_register_settings' );
 
 /**
  * Adds the Site Settings admin page.
@@ -1577,6 +1577,15 @@ The page renders six tabs, switched by a `?tab=` query parameter, each posting
 the whole option. `gotg_sanitize_site_settings()` merges the submitted tab's
 keys over the stored array so a tab submission never blanks the other tabs'
 values.
+
+**`register_setting()` is hooked to `init`, not `admin_init`.** On `admin_init`
+the setting is unregistered outside admin requests, which means a WP-CLI write, a
+seed-script write, or any non-admin code path updating `gotg_site_settings`
+bypasses `gotg_sanitize_site_settings()` entirely — the sanitizer would guard
+admin form submissions only. Post meta already registers on `init` (§3.5), so
+`init` also makes the two layers consistent: one hook, one guarantee that the
+sanitizer is the floor for every write path. `add_menu_page()` stays on
+`admin_menu`, which is admin-only by nature.
 
 ### 11.1 Tab: Identity
 
