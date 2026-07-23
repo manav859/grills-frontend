@@ -219,15 +219,15 @@ export interface SiteIdentity {
   legalName: string;
   tagline: string;
   description: string;
-  logo: ImageObject;
-  logoInverse: ImageObject;
-  favicon: ImageObject;
+  logo?: ImageObject;
+  logoInverse?: ImageObject;
+  favicon?: ImageObject;
 }
 
 export interface SeoDefaults {
   titleTemplate: string;
   description: string;
-  ogImage: ImageObject;
+  ogImage?: ImageObject;
   sameAs: string[];
   priceRange: string;
   servesCuisine: string[];
@@ -262,6 +262,30 @@ export interface GlobalData {
   generatedAt: string;
 }
 ```
+
+### 2.0 Image fields on `_global` are optional
+
+`SiteIdentity.logo`, `SiteIdentity.logoInverse`, `SiteIdentity.favicon`, and
+`SeoDefaults.ogImage` are optional, and are **omitted** when no attachment is
+set — the same ADR-0022 rule as every other absent optional value.
+
+They were required in an earlier revision. That was wrong: a freshly installed
+site has no media library, so every endpoint emitted a payload that failed its
+own contract, and the first thing a developer saw was a Zod failure on four keys
+rather than a working site. Nothing can synthesise an `ImageObject` from an
+absent attachment, and §7 authorises no error status for "the client has not
+uploaded a logo yet" — because it is not an error. Found during REST
+verification.
+
+| Field | Frontend behaviour when absent |
+|---|---|
+| `logo` | `SiteHeader` renders `site.name` as a text wordmark in the brand display face — see `06-COMPONENT-SPEC.md` |
+| `logoInverse` | Same, in the inverse colour token |
+| `favicon` | No `<link rel="icon">` is emitted; the browser falls back to its default |
+| `ogImage` | `seo.ogImage` has no global fallback, so a page without its own image emits no `og:image` |
+
+Setting all four is a launch requirement, not a schema requirement. The
+pre-launch checklist in `11-PROJECT-PLAN.md` covers it.
 
 ### 2.1 `priceVariants` invariants
 
