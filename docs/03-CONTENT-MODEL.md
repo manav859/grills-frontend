@@ -481,10 +481,13 @@ structurally rather than merely escaped:
 | Rejected input returns `''` | The key is then omitted and the image renders without a placeholder, which is a degraded but correct page |
 | ≤ 4 KB | A placeholder is a 10×10-ish thumbnail. Anything larger is not serving its purpose and bloats every payload the image appears in. |
 
-`[ASSUMPTION] Generation is not yet specified. The value is written by a
-background process on upload — most likely a `wp_generate_attachment_metadata`
-hook. Until that exists the key is registered, empty, and omitted from every
-payload, which is the correct behaviour for an image with no placeholder.`
+**Generation is a separate task — T-BE-27 in `11-PROJECT-PLAN.md`.** The value is
+written by a `wp_generate_attachment_metadata` hook on upload, specified in full
+in `08-PERFORMANCE-SEO-A11Y.md` §2.4, with a `wp gotg backfill-blur` command for
+existing attachments. Until that task lands the key is registered, empty, and
+omitted from every payload, which is the correct behaviour for an image with no
+placeholder — image components ship without it, but the CLS targets in Phase 6
+are not met until it exists.
 
 ---
 

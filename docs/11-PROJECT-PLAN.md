@@ -31,7 +31,7 @@ Applies to every task. A task is not done until all rows are true.
 | Phase | Name | Duration (dev-days) | Gate |
 |---|---|---|---|
 | 0 | Foundation and Environments | 8 | Staging reachable end-to-end |
-| 1 | Content Model, Admin UI, and API | 19.5 | All five endpoints pass contract tests on staging; every field editable in wp-admin |
+| 1 | Content Model, Admin UI, and API | 20.25 | All five endpoints pass contract tests on staging; every field editable in wp-admin |
 | 2 | Design System and Primitives | 11 | Every primitive and layout component built and a11y-verified |
 | 3 | Page Build | 21 | All five routes render real staging content |
 | 4 | Integrations | 8 | Every integration has a verified failure mode |
@@ -39,10 +39,10 @@ Applies to every task. A task is not done until all rows are true.
 | 6 | Hardening | 10 | All budgets met, full a11y audit passed |
 | 7 | Launch and Cutover | 4 | Live on the production domain, zero downtime |
 | 8 | Post-Launch Stabilisation | 5.5 | 14 days of clean monitoring |
-| — | **Total to launch** | **97.75** | — |
+| — | **Total to launch** | **98.5** | — |
 | P2 | Custom admin application | 9 | Deferred — see §3.0 and ADR-0026 |
 
-At a 4-day working week for one developer, 97.75 developer-days is approximately
+At a 4-day working week for one developer, 98.5 developer-days is approximately
 **24 calendar weeks**. At full-time with a single developer, approximately
 **20 calendar weeks** including review latency. `[ASSUMPTION] One developer
 covering backend, frontend, and devops. Two developers working in parallel from
@@ -83,7 +83,7 @@ contract-conformant payloads.
 | Exit criteria | All CPTs, taxonomies, post meta, term meta, and the settings option registered from `mu-plugins`; every field editable through a meta box that satisfies the §2 contract in `03-CONTENT-MODEL.md`; the `gotg_editor` role exists and is verified against the capability table; all five endpoints return 200 and pass `.strict()` Zod contract tests against staging; core REST locked down; revalidation webhook fires |
 | Dependencies | Phase 0 |
 | Deliverables | `mu-plugins/gotg/` complete including `meta.php`, `admin/` meta boxes, `gotg-repeater.js`, `gotg-block-builder.js`; `types/api.ts` and `types/api.schema.ts`; contract test suite; editor guardrails; role definition |
-| Note | This phase is larger than it was under a fields plugin. Admin UI is roughly 6.5 of its 19.5 developer-days. That cost is the accepted tradeoff in ADR-0025 and `01-TECH-STACK.md` §4.1. |
+| Note | This phase is larger than it was under a fields plugin. Admin UI is roughly 6.5 of its 20.25 developer-days. That cost is the accepted tradeoff in ADR-0025 and `01-TECH-STACK.md` §4.1. |
 | Note | Blocked partially on DP-21 (the real menu) for *content*, not for *schema*. Price variants are modelled as a repeater from the outset, so a size-tiered menu no longer forces a model change — this is why R-06 is retired. |
 
 ### Phase 2 — Design System and Primitives
@@ -209,7 +209,8 @@ Areas: **BE** backend · **FE** frontend · **CO** content · **DO** devops.
 | T-BE-16 | Site Settings: option registration, `add_menu_page`, six tabs, merge-on-save sanitizer | 1 | BE | T-BE-08, T-BE-09 | 1.5 |
 | T-BE-17 | Admin declutter: `remove_menu_page`, `remove_meta_box`, relabelling, list-table columns | 1 | BE | T-BE-04 | 0.5 |
 | T-BE-18 | `gotg_editor` role: creation on activation, capability trimming, verification against the §13.3 table | 1 | BE | T-BE-04 | 0.5 |
-| T-BE-19 | Register image sizes; implement the blur-placeholder generator | 1 | BE | T-BE-02 | 0.5 |
+| T-BE-19 | Register image sizes (`gotg_card`, `gotg_hero`) | 1 | BE | T-BE-02 | 0.25 |
+| T-BE-27 | Blur-placeholder generation: `wp_generate_attachment_metadata` hook per `08-PERFORMANCE-SEO-A11Y.md` §2.4, write to `_gotg_blur_data_url`, plus a `wp gotg backfill-blur` WP-CLI command for existing attachments | 1 | BE | T-BE-06, T-BE-19 | 1 |
 | T-BE-20 | Shaper helpers: `gotg_shape_image`, `gotg_shape_seo`, `gotg_build_global` | 1 | BE | T-BE-06, T-BE-16 | 1 |
 | T-BE-21 | Shaper helpers: `gotg_shape_menu_item`, `gotg_shape_price_variants`, `gotg_shape_event`, `gotg_shape_blocks`; batched `update_meta_cache()` | 1 | BE | T-BE-06 | 1.5 |
 | T-BE-22 | Register all five `gotg/v1` routes with permission callbacks and args | 1 | BE | T-BE-20, T-BE-21 | 1.5 |
@@ -287,9 +288,45 @@ Areas: **BE** backend · **FE** frontend · **CO** content · **DO** devops.
 | T-CO-10 | Record how the client actually uses the Phase 1 admin screens; log friction points | 8 | CO | T-CO-09 | 0.5 |
 | T-DO-21 | Agree the Phase 2 backlog with the client | 8 | DO | T-DO-18, T-CO-10 | 0.5 |
 
-Total: **97.75 developer-days** for Phase 0–8.
+Total: **98.5 developer-days** for Phase 0–8.
 
-The increase from the previous 89 is Phase 1 growing from 13 to 19.5 days: the
+#### T-BE-27 — blur placeholder generation
+
+`_gotg_blur_data_url` is registered and shaped into every `ImageObject`
+(`04-API-CONTRACT.md` §6.1), but nothing writes it. Until this task lands the key
+is always empty and every image ships without a placeholder.
+
+Scope:
+
+| Step | Detail | Est. |
+|---|---|---|
+| Generator | The `wp_generate_attachment_metadata` filter in `08-PERFORMANCE-SEO-A11Y.md` §2.4, verbatim — 20px-wide JPEG at quality 40, base64 data URI, stored only when ≤ 1.2 KB | 0.25 |
+| Regeneration | Runs on the same filter, so `wp media regenerate` and any re-upload refresh the placeholder without extra wiring. Verify rather than build. | 0.1 |
+| Backfill | `wp gotg backfill-blur [--force] [--dry-run]`: iterate existing image attachments, skip those already holding a valid value unless `--force`, report a per-item and summary count. Idempotent and resumable — the media library is the only copy of local content (`10-ENVIRONMENTS-DEPLOYMENT.md` §8.1). | 0.5 |
+| Verification | JPEG, PNG, WebP inputs; a CMYK JPEG; an image that exceeds 1.2 KB after encoding and must be skipped rather than truncated; confirm `blurDataUrl` reaches the payload | 0.15 |
+
+**Estimate: 1 developer-day.** The generator itself is nearly free — §2.4 already
+specifies it in full. The cost is the backfill command and proving the skip path
+behaves, since a truncated data URI renders as a broken image on every page the
+attachment appears on.
+
+Split from the original T-BE-19, which bundled image sizes and the generator at a
+combined 0.5 days and covered no backfill. The two are separate concerns: image
+sizes must exist before any shaper runs, whereas placeholders can arrive at any
+point without changing a single response shape.
+
+**Dependency, stated precisely: image components are not blocked, CLS targets
+are.** `Image` (T-FE-11) and every block that renders one ship and function with
+`blurDataUrl` absent — §2.4 specifies the fallback, a solid
+`--color-surface-sunken` fill, and the frontend needs no change when the key
+later appears. What does not hold is the Core Web Vitals gate: Phase 6's exit
+criterion is all budgets met on every route *with real images*, and the CLS
+target will not be met on image-heavy routes until placeholders exist. So this
+task must complete before T-FE-40 (performance pass) and before the Phase 6 gate,
+but it blocks nothing in Phases 2 and 3. It is deliberately off the critical
+path.
+
+The increase from the previous 89 is Phase 1 growing from 13 to 20.25 days: the
 admin UI that a fields plugin would have supplied is now build work. Itemised:
 
 | Work | Days |

@@ -25,7 +25,7 @@ something, it is marked `[ASSUMPTION]`.
 | 08 | [08-PERFORMANCE-SEO-A11Y.md](08-PERFORMANCE-SEO-A11Y.md) | Numeric budgets, image and font strategy, metadata rules, schema.org JSON-LD examples, WCAG 2.1 AA checklist |
 | 09 | [09-INTEGRATIONS.md](09-INTEGRATIONS.md) | Every third-party surface with vendor comparisons, failure modes, environment variables, and cost |
 | 10 | [10-ENVIRONMENTS-DEPLOYMENT.md](10-ENVIRONMENTS-DEPLOYMENT.md) | Environment matrix, variable registry, local setup, CI/CD, rollback, backups, DNS cutover, and the SQLite→MySQL parity analysis |
-| 11 | [11-PROJECT-PLAN.md](11-PROJECT-PLAN.md) | Nine phases, a 97.75-day backlog with estimates and dependencies, a 17-item risk register, the deferred Phase 2 admin scope, and the content migration plan |
+| 11 | [11-PROJECT-PLAN.md](11-PROJECT-PLAN.md) | Nine phases, a 98.5-day backlog with estimates and dependencies, a 17-item risk register, the deferred Phase 2 admin scope, and the content migration plan |
 | 12 | [12-GLOSSARY-DECISIONS.md](12-GLOSSARY-DECISIONS.md) | Glossary, plus 26 Architecture Decision Records covering every significant choice |
 | — | [README.md](README.md) | This index |
 

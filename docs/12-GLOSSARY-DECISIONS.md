@@ -1103,8 +1103,10 @@ implementation contract in §2.
   cost, retiring risk R-06 — the size-tiered-pricing migration that would
   otherwise have landed during content entry.
 - **Negative: roughly 4.5 net additional developer-days**, itemised in
-  `11-PROJECT-PLAN.md` §3. Phase 1 grows from 13 to 19.5 days. This is a real
-  cost, budgeted rather than waved away.
+  `11-PROJECT-PLAN.md` §3; 4.5 is the share of Phase 1's growth attributable to
+  this decision, not the whole of it (T-BE-27 blur generation adds a further
+  day, unrelated to fields). This is a real cost, budgeted rather than waved
+  away.
 - **Negative: hand-rolled validation and sanitization is a defect source.** Nonce
   checks, capability checks, sanitization, and the absent-checkbox problem are
   now project code repeated across six meta boxes and roughly forty fields, and
