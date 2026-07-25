@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+
+/*
+ * Minimal base. The design-system token layer (tokens.css, theme.css) lands in
+ * a later commit and this file will import it in place of Tailwind directly.
+ */
+
+body {
+  min-height: 100dvh;
+}
