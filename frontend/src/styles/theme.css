@@ -1,0 +1,108 @@
+/*
+ * Tailwind theme mapping.
+ * Source of truth: 05-DESIGN-SYSTEM.md §8.2. Tailwind CSS 4 reads its theme
+ * from CSS; every utility resolves to a token declared in tokens.css. Arbitrary
+ * values are prohibited and lint-banned (07-CODING-STANDARDS.md §8).
+ */
+
+@import 'tailwindcss';
+@import './tokens.css';
+
+@theme inline {
+  --color-brand: var(--color-brand-primary);
+  --color-brand-hover: var(--color-brand-primary-hover);
+  --color-brand-active: var(--color-brand-primary-active);
+  --color-brand-subtle: var(--color-brand-primary-subtle);
+  --color-ember: var(--color-brand-ember);
+  --color-oak: var(--color-brand-oak);
+
+  --color-surface: var(--color-surface);
+  --color-surface-raised: var(--color-surface-raised);
+  --color-surface-sunken: var(--color-surface-sunken);
+  --color-surface-inverse: var(--color-surface-inverse);
+
+  --color-ink: var(--color-ink);
+  --color-ink-muted: var(--color-ink-muted);
+  --color-ink-subtle: var(--color-ink-subtle);
+  --color-ink-inverse: var(--color-ink-inverse);
+  --color-ink-inverse-muted: var(--color-ink-inverse-muted);
+
+  --color-success: var(--color-success);
+  --color-success-subtle: var(--color-success-subtle);
+  --color-warning: var(--color-warning);
+  --color-warning-subtle: var(--color-warning-subtle);
+  --color-danger: var(--color-danger);
+  --color-danger-subtle: var(--color-danger-subtle);
+  --color-info: var(--color-info);
+  --color-info-subtle: var(--color-info-subtle);
+
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+  --color-border-interactive: var(--color-border-interactive);
+  --color-focus: var(--color-focus-ring);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+
+  --text-display: var(--text-display);
+  --text-display--line-height: var(--text-display-lh);
+  --text-display--letter-spacing: var(--text-display-ls);
+  --text-h1: var(--text-h1);
+  --text-h1--line-height: var(--text-h1-lh);
+  --text-h1--letter-spacing: var(--text-h1-ls);
+  --text-h2: var(--text-h2);
+  --text-h2--line-height: var(--text-h2-lh);
+  --text-h2--letter-spacing: var(--text-h2-ls);
+  --text-h3: var(--text-h3);
+  --text-h3--line-height: var(--text-h3-lh);
+  --text-h4: var(--text-h4);
+  --text-h4--line-height: var(--text-h4-lh);
+  --text-body-lg: var(--text-body-lg);
+  --text-body-lg--line-height: var(--text-body-lg-lh);
+  --text-body: var(--text-body);
+  --text-body--line-height: var(--text-body-lh);
+  --text-body-sm: var(--text-body-sm);
+  --text-body-sm--line-height: var(--text-body-sm-lh);
+  --text-label: var(--text-label);
+  --text-label--line-height: var(--text-label-lh);
+  --text-caption: var(--text-caption);
+  --text-caption--line-height: var(--text-caption-lh);
+  --text-overline: var(--text-overline);
+  --text-overline--line-height: var(--text-overline-lh);
+  --text-overline--letter-spacing: var(--text-overline-ls);
+
+  --spacing-1: var(--space-1);
+  --spacing-2: var(--space-2);
+  --spacing-3: var(--space-3);
+  --spacing-4: var(--space-4);
+  --spacing-5: var(--space-5);
+  --spacing-6: var(--space-6);
+  --spacing-8: var(--space-8);
+  --spacing-10: var(--space-10);
+  --spacing-12: var(--space-12);
+  --spacing-16: var(--space-16);
+  --spacing-20: var(--space-20);
+  --spacing-24: var(--space-24);
+  --spacing-32: var(--space-32);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-full: var(--radius-full);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+
+  --ease-standard: var(--ease-standard);
+  --ease-out: var(--ease-out);
+  --ease-in: var(--ease-in);
+  --ease-spring: var(--ease-spring);
+
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}

@@ -1,10 +1,35 @@
-@import 'tailwindcss';
-
 /*
- * Minimal base. The design-system token layer (tokens.css, theme.css) lands in
- * a later commit and this file will import it in place of Tailwind directly.
+ * Global stylesheet, imported once in the root layout.
+ * The token layer (tokens.css) and Tailwind theme mapping (theme.css) are
+ * pulled in here; theme.css imports Tailwind itself.
  */
 
+@import './theme.css';
+
+/* Base — 05-DESIGN-SYSTEM.md §1 surface and ink defaults. */
 body {
   min-height: 100dvh;
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-regular);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/*
+ * Focus indicator — 05-DESIGN-SYSTEM.md §9. One treatment, applied globally;
+ * components never define their own. `outline: none` without a replacement is
+ * prohibited anywhere in the codebase.
+ */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: var(--border-width-thick) solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus:not(
+    :focus-visible
+  ) {
+  outline: none;
 }
