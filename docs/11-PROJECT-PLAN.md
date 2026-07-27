@@ -32,17 +32,17 @@ Applies to every task. A task is not done until all rows are true.
 |---|---|---|---|
 | 0 | Foundation and Environments | 8 | Staging reachable end-to-end |
 | 1 | Content Model, Admin UI, and API | 20.25 | All five endpoints pass contract tests on staging; every field editable in wp-admin |
-| 2 | Design System and Primitives | 11 | Every primitive and layout component built and a11y-verified |
+| 2 | Design System and Primitives | 11.5 | Every primitive and layout component built and a11y-verified |
 | 3 | Page Build | 21 | All five routes render real staging content |
 | 4 | Integrations | 8 | Every integration has a verified failure mode |
 | 5 | Content Production and Migration | 9 | Real content in staging, client sign-off |
 | 6 | Hardening | 10 | All budgets met, full a11y audit passed |
 | 7 | Launch and Cutover | 4 | Live on the production domain, zero downtime |
 | 8 | Post-Launch Stabilisation | 5.5 | 14 days of clean monitoring |
-| — | **Total to launch** | **98.5** | — |
+| — | **Total to launch** | **99** | — |
 | P2 | Custom admin application | 9 | Deferred — see §3.0 and ADR-0026 |
 
-At a 4-day working week for one developer, 98.5 developer-days is approximately
+At a 4-day working week for one developer, 99 developer-days is approximately
 **24 calendar weeks**. At full-time with a single developer, approximately
 **20 calendar weeks** including review latency. `[ASSUMPTION] One developer
 covering backend, frontend, and devops. Two developers working in parallel from
@@ -224,6 +224,8 @@ Areas: **BE** backend · **FE** frontend · **CO** content · **DO** devops.
 | T-FE-06 | Implement `tokens.css` and `theme.css` from `05-DESIGN-SYSTEM.md` | 2 | FE | T-FE-01 | 1 |
 | T-FE-07 | Contrast pair data and `pnpm test:contrast` suite | 2 | FE | T-FE-06 | 0.5 |
 | T-FE-08 | Font subsetting, self-hosting, `@font-face` with metric overrides, preloads | 2 | FE | T-FE-06 | 0.75 |
+| T-FE-45 | Re-enable Tailwind lint rules `no-custom-classname` and `classnames-order` once `eslint-plugin-tailwindcss` supports Tailwind 4's CSS-first `@theme` | 2 | FE | T-FE-06 | 0.25 |
+| T-FE-46 | Wire Husky + lint-staged, configured for the git-root / package-root split | 2 | FE | T-FE-01 | 0.25 |
 | T-FE-09 | Primitives: `Button`, `LinkButton`, `IconButton` | 2 | FE | T-FE-06 | 1 |
 | T-FE-10 | Primitives: `Heading`, `Text`, `Badge`, `Price`, `Divider`, `VisuallyHidden` | 2 | FE | T-FE-06 | 0.75 |
 | T-FE-11 | Primitives: `Icon` set (24 glyphs), `Image`, `Skeleton`, `Spinner` | 2 | FE | T-FE-06 | 1.25 |
@@ -288,7 +290,7 @@ Areas: **BE** backend · **FE** frontend · **CO** content · **DO** devops.
 | T-CO-10 | Record how the client actually uses the Phase 1 admin screens; log friction points | 8 | CO | T-CO-09 | 0.5 |
 | T-DO-21 | Agree the Phase 2 backlog with the client | 8 | DO | T-DO-18, T-CO-10 | 0.5 |
 
-Total: **98.5 developer-days** for Phase 0–8.
+Total: **99 developer-days** for Phase 0–8.
 
 #### T-BE-27 — blur placeholder generation
 
@@ -325,6 +327,53 @@ target will not be met on image-heavy routes until placeholders exist. So this
 task must complete before T-FE-40 (performance pass) and before the Phase 6 gate,
 but it blocks nothing in Phases 2 and 3. It is deliberately off the critical
 path.
+
+#### Deferred from the frontend scaffold (T-FE-01)
+
+Four items were flagged as out of scope while scaffolding the Next.js app and are
+recorded here so none is lost. **All four are non-blocking: components build
+without them.** Two are new tasks; two are already tracked and only
+cross-referenced.
+
+| Item | Tracked as | Est. | Status |
+|---|---|---|---|
+| Re-enable `no-custom-classname` and `classnames-order` | **T-FE-45** (new) | 0.25 | Blocked on an upstream release |
+| Husky + lint-staged | **T-FE-46** (new) | 0.25 | Ready to do |
+| Self-hosted `.woff2` fonts | **T-FE-08** (existing) | — | Already estimated |
+| Zod schema `api.schema.ts` | **T-FE-04** (existing) | — | Already estimated |
+
+**T-FE-45 — Tailwind lint rules.** `07-CODING-STANDARDS.md` §8.1 requires
+`no-arbitrary-value`, `no-custom-classname`, and `classnames-order`. Only the
+first is active. `eslint-plugin-tailwindcss` 3.x cannot resolve Tailwind 4's
+CSS-first `@theme` (`src/styles/theme.css`), so the two theme-aware rules cannot
+see the project tokens; enabling them now would either no-op or reject valid
+token utilities such as `bg-brand`. `no-arbitrary-value` is syntactic, is
+**verified working, and remains enforced** — a probe with `text-[17px]` fails
+lint. Re-enable the other two once the plugin ships stable Tailwind 4 support
+(a v4 line exists but reworks the rule names, so this is a real re-integration,
+not a config flip). Blocked on that external release; can land any time after,
+independent of feature work.
+
+**T-FE-46 — Husky + lint-staged.** Nominally part of T-FE-01, deferred because
+the git root (`D:\work\grills`) is a level above the package root
+(`frontend/`). Husky 9 installs relative to the git root and lint-staged runs
+from the package root, so the hook path, the `prepare` script, and the
+lint-staged working directory all need configuring for that split rather than
+the single-root default. Until then `lint`, `format`, and `typecheck` run
+manually and in CI; the missing piece is only the pre-commit convenience.
+
+**T-FE-08 — self-hosted fonts (already tracked).** The scaffold ships no
+`.woff2` files under `public/fonts/`, so the `--font-body` / `--font-display`
+stacks fall back to their system fonts (`05-DESIGN-SYSTEM.md` §2.1). T-FE-08
+delivers subsetting, self-hosting, `@font-face` with metric overrides, and
+preloads per the font-loading strategy in `08-PERFORMANCE-SEO-A11Y.md`. No new
+task; the fallback is correct and unremarkable until then.
+
+**T-FE-04 / T-FE-05 — Zod contract module (already tracked).** `api.ts` is the
+hand-written type source; the paired `api.schema.ts` with the exactness
+assertions is T-FE-04, and the CI run against staging is T-FE-05
+(`01-TECH-STACK.md` §3.2). The scaffold intentionally shipped types without the
+schema. No new task.
 
 The increase from the previous 89 is Phase 1 growing from 13 to 20.25 days: the
 admin UI that a fields plugin would have supplied is now build work. Itemised:
