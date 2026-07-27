@@ -110,6 +110,13 @@ export default tseslint.config(
       // token utilities such as `bg-brand`. Re-enable once the plugin's Tailwind
       // 4 support stabilises. Tracked as a tooling gap — 07 §8.1 expects both.
 
+      // A numeric HTTP status interpolated into an error message is safe and
+      // intentional (see lib/api.ts); strings and numbers only, nothing else.
+      '@typescript-eslint/restrict-template-expressions': [
+        'error',
+        { allowNumber: true },
+      ],
+
       // Accessibility hard rules called out in 07 §8.1.
       'jsx-a11y/no-autofocus': 'error',
     },
