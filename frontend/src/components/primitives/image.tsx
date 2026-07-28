@@ -1,8 +1,19 @@
 import NextImage from 'next/image';
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 import { cn } from '@/lib/cn';
 import type { ImageObject } from '@/types/api';
+
+/* Maps the aspectRatio union to its token utility (05-DESIGN-SYSTEM.md §4.4). */
+const ASPECT_CLASS = {
+  '1/1': 'aspect-square',
+  '4/3': 'aspect-4-3',
+  '3/2': 'aspect-3-2',
+  '16/9': 'aspect-16-9',
+} as const satisfies Record<
+  NonNullable<ImageProps['aspectRatio']>,
+  string
+>;
 
 /*
  * Image — 06-COMPONENT-SPEC.md §Image. The single image entry point; direct use
@@ -46,27 +57,35 @@ export function Image({
       ? ({ placeholder: 'blur', blurDataURL: blur } as const)
       : ({ placeholder: 'empty' } as const);
 
+  const filled = (
+    <NextImage
+      src={image.src}
+      alt={alt}
+      fill
+      sizes={sizes}
+      priority={priority}
+      className="object-cover"
+      {...blurProps}
+    />
+  );
+
   if (fill) {
-    // aspectRatio is structural, not a design token; the token set has no
-    // aspect-ratio scale (reported).
-    const boxStyle: CSSProperties = aspectRatio
-      ? { aspectRatio: aspectRatio.replace('/', ' / ') }
-      : {};
+    // With an aspectRatio the box reserves space itself via the token utility
+    // (05-DESIGN-SYSTEM.md §4.4). Without one, the parent owns position, size,
+    // and the sunken degrade box — this is how MenuCard applies a per-breakpoint
+    // ratio (aspect-3-2 md:aspect-square).
+    if (!aspectRatio) {
+      return filled;
+    }
 
     return (
       <span
-        className="relative block overflow-hidden bg-surface-sunken"
-        style={boxStyle}
+        className={cn(
+          'relative block overflow-hidden bg-surface-sunken',
+          ASPECT_CLASS[aspectRatio],
+        )}
       >
-        <NextImage
-          src={image.src}
-          alt={alt}
-          fill
-          sizes={sizes}
-          priority={priority}
-          className="object-cover"
-          {...blurProps}
-        />
+        {filled}
       </span>
     );
   }

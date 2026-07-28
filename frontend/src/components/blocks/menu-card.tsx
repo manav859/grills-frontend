@@ -15,10 +15,10 @@ import type { DietaryColor, MenuItem, SpiceLevel } from '@/types/api';
  * (one or many variants). Every optional field degrades: no image collapses to
  * text-only, no description omits the node, no dietary tags omit the list.
  *
- * The image box keeps a single 3/2 ratio at both sizes (full-width on mobile,
- * a 96px-wide leading thumbnail at md). The spec's md 1/1 is not used because
- * neither 3/2 nor a per-breakpoint aspect swap is expressible without an
- * arbitrary Tailwind value — reported as an aspect-ratio token gap.
+ * The image is full-width at 3/2 on mobile and a 96px square (1/1) leading
+ * thumbnail at md, per spec — expressed with the aspect-ratio token utilities
+ * (aspect-3-2 md:aspect-square, 05-DESIGN-SYSTEM.md §4.4). The wrapper owns the
+ * ratio and the sunken degrade box; Image fills it.
  */
 
 export interface MenuCardProps {
@@ -53,11 +53,10 @@ export function MenuCard({
       )}
     >
       {item.image ? (
-        <div className="w-full md:w-24 md:shrink-0">
+        <div className="relative aspect-3-2 w-full shrink-0 overflow-hidden rounded-lg bg-surface-sunken md:aspect-square md:w-24">
           <Image
             image={item.image}
             fill
-            aspectRatio="3/2"
             sizes="(min-width: 768px) 96px, 100vw"
           />
         </div>
