@@ -251,8 +251,32 @@ Rules:
 | Nonce is mandatory | A missing nonce is treated as a failure, not as "nothing to save" |
 | Absent checkbox | An unchecked checkbox sends no `$_POST` key. Every boolean field is written explicitly as `'0'` when its key is absent, never left at its previous value. |
 | Partial writes | A field that fails validation is **not** written. Other fields in the same box still save. The previous value survives. |
-| Sanitization is doubled | `sanitize_callback` on `register_post_meta()` is the floor. The save handler sanitizes and validates before calling `update_post_meta()`. Neither is trusted alone. |
+| Single-point sanitization | The save handler **validates only** — range, enum, length, and cross-field rules — and writes the raw unslashed value. Sanitization is owned solely by the key's registered `sanitize_callback` (§2.4), which runs on the `update_post_meta()` call. The handler does not re-sanitize. |
 | Empty values | An empty optional field calls `delete_post_meta()` rather than writing `''`, so `get_post_meta()` returns `''` and the shaper omits the key — matching ADR-0022 |
+
+**Sanitization happens in exactly one place.** A rule that lives in two places
+is a rule with two sources of truth: the day they disagree, the value stored by
+the seed script or WP-CLI (which only ever pass through the `sanitize_callback`)
+differs from the value stored by the admin form, and the divergence is invisible
+until it corrupts a payload. So the save handler cleans nothing. It reads
+`$_POST` with `wp_unslash()` — which un-slashes, it does not sanitize —
+validates the business rules that can *reject* a value, and hands the raw value
+to `update_post_meta()`, where the registered `sanitize_callback` is the one and
+only thing that coerces and cleans it. Validation and sanitization are different
+jobs (§2.4): validation can refuse and report; sanitization can only silently
+transform, which is why it must not also be a rejection point.
+
+The save handler reads `$_POST` at exactly one point — where it hands the raw
+submission to its `gotg_validate_*()` function — and that line carries a
+`phpcs:ignore WordPress.Security.NonceVerification.Missing` marker, because the
+nonce was already verified inside the shared `gotg_meta_box_can_save()` guard
+rather than inline, and phpcs cannot follow that check across the function
+boundary. (The term-meta handlers do the same at `$input = $_POST`, verified in
+`gotg_can_save_term_meta()`.) The marker is deliberate: it records where a check
+moved, not where one was skipped. No sanitization marker sits at the
+`update_post_meta()` call, because nothing there needs suppressing — the value
+reaches it as a validated local and is cleaned by the registered
+`sanitize_callback` on write.
 
 ### 2.4 Sanitization responsibility
 
@@ -298,40 +322,76 @@ is which.
 
 ### 2.5 Validation error surfacing
 
-Errors survive the post-save redirect through a user-scoped transient.
+Errors survive the post-save redirect through a user-scoped transient. Two
+properties of that transient are load-bearing the moment a post type has more
+than one meta box, and the Location post type — with its separate Address &
+Contact and Opening Hours boxes, either or both able to fail — is the case that
+exposes them:
+
+- **Store merges.** Each box has its own save handler, and on one save WordPress
+  fires every `save_post` handler in turn. A plain `set_transient()` lets the
+  second box's errors overwrite the first's, silently dropping them. The store
+  merges with whatever is already held this request instead.
+- **Read is idempotent within a request.** On the redirect that renders the edit
+  screen, the `admin_notices` summary and *every* box's render callback each ask
+  for the errors. A read that deletes on first call gives the errors to whichever
+  runs first and an empty array to the rest, so the inline field errors or the
+  summary — whichever lost the race — vanish. The read consumes the transient
+  once and caches the result, so all consumers in the request see the same set,
+  regardless of hook order; the transient is gone for the *next* request.
 
 ```php
 <?php
 /**
  * Stores validation errors for display after the save redirect.
  *
+ * Merges with any errors already stored this request, so a post type with two
+ * boxes (Location) does not lose the first box's errors when the second saves.
+ *
  * @param int   $post_id Post ID.
- * @param array $errors  Map of meta key to error message.
+ * @param array $errors  Map of field key to error message.
  * @return void
  */
 function gotg_store_meta_errors( $post_id, array $errors ) {
-	set_transient(
-		'gotg_meta_errors_' . (int) $post_id . '_' . get_current_user_id(),
-		$errors,
-		60
-	);
+	$key      = 'gotg_meta_errors_' . (int) $post_id . '_' . get_current_user_id();
+	$existing = get_transient( $key );
+
+	if ( is_array( $existing ) ) {
+		$errors = array_merge( $existing, $errors );
+	}
+
+	set_transient( $key, $errors, 60 );
 }
 
 /**
- * Returns and clears stored validation errors for the current screen.
+ * Returns stored validation errors for the current screen.
+ *
+ * Idempotent within a request: the transient is read and cleared once, then the
+ * result is cached, so the admin_notices summary and every box render can each
+ * call this and receive the same errors regardless of hook order.
  *
  * @param int $post_id Post ID.
- * @return array Map of meta key to error message.
+ * @return array Map of field key to error message.
  */
 function gotg_take_meta_errors( $post_id ) {
-	$key    = 'gotg_meta_errors_' . (int) $post_id . '_' . get_current_user_id();
+	static $cache = array();
+
+	$post_id = (int) $post_id;
+
+	if ( isset( $cache[ $post_id ] ) ) {
+		return $cache[ $post_id ];
+	}
+
+	$key    = 'gotg_meta_errors_' . $post_id . '_' . get_current_user_id();
 	$errors = get_transient( $key );
 
 	if ( ! is_array( $errors ) ) {
-		return array();
+		$errors = array();
+	} else {
+		delete_transient( $key );
 	}
 
-	delete_transient( $key );
+	$cache[ $post_id ] = $errors;
 
 	return $errors;
 }
