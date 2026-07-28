@@ -85,7 +85,7 @@ Content blocks, in render order:
 | # | Block | Component | Data source | Notes |
 |---|---|---|---|---|
 | 1 | Header | `SiteHeader` | `_global.navigation.primary` | — |
-| 2 | Page intro | `PageHeader` | `menu.title`, `menu.intro` | H1 lives here. |
+| 2 | Page intro | `PageHeader` | `menu.title` | H1 lives here. There is no `menu.intro` — see note below. |
 | 3 | Daypart filter | `DaypartFilter` | `menu.dayparts` | Client Component. URL state via `?daypart=`. Defaults to the current daypart based on local time. |
 | 4 | Section jump nav | `SectionNav` | `menu.sections[].title` | Sticky below header at `md`+. Anchor links. |
 | 5 | Menu sections | `MenuSection` × n | `menu.sections` (`gotg_menu_section` terms) | Ordered by term `menuOrder`. |
@@ -96,6 +96,14 @@ Content blocks, in render order:
 
 Constraint: the menu is one page. Per-section pages are rejected — golfers on
 cellular should not pay a navigation round trip to find a sandwich.
+
+`[NOTE] There is no menu-level intro field. An earlier revision fed PageHeader a
+menu.intro, but that field never existed on MenuResponse (04-API-CONTRACT.md §5.2
+carries title but no intro; the page builder's first text block serves as an
+intro instead). PageHeader renders title only. If a dedicated menu intro is
+wanted as a feature, it must be added deliberately — a meta key in
+03-CONTENT-MODEL.md, a field on MenuResponse in 04-API-CONTRACT.md, and the
+shaper — not reintroduced here as a dangling reference. Not added speculatively.`
 
 ---
 
