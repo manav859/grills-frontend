@@ -31,7 +31,7 @@ Applies to every task. A task is not done until all rows are true.
 | Phase | Name | Duration (dev-days) | Gate |
 |---|---|---|---|
 | 0 | Foundation and Environments | 8 | Staging reachable end-to-end |
-| 1 | Content Model, Admin UI, and API | 20.25 | All five endpoints pass contract tests on staging; every field editable in wp-admin |
+| 1 | Content Model, Admin UI, and API | 20.5 | All five endpoints pass contract tests on staging; every field editable in wp-admin |
 | 2 | Design System and Primitives | 11.5 | Every primitive and layout component built and a11y-verified |
 | 3 | Page Build | 21 | All five routes render real staging content |
 | 4 | Integrations | 8 | Every integration has a verified failure mode |
@@ -39,10 +39,10 @@ Applies to every task. A task is not done until all rows are true.
 | 6 | Hardening | 10 | All budgets met, full a11y audit passed |
 | 7 | Launch and Cutover | 4 | Live on the production domain, zero downtime |
 | 8 | Post-Launch Stabilisation | 5.5 | 14 days of clean monitoring |
-| — | **Total to launch** | **99** | — |
+| — | **Total to launch** | **99.25** | — |
 | P2 | Custom admin application | 9 | Deferred — see §3.0 and ADR-0026 |
 
-At a 4-day working week for one developer, 99 developer-days is approximately
+At a 4-day working week for one developer, 99.25 developer-days is approximately
 **24 calendar weeks**. At full-time with a single developer, approximately
 **20 calendar weeks** including review latency. `[ASSUMPTION] One developer
 covering backend, frontend, and devops. Two developers working in parallel from
@@ -83,7 +83,7 @@ contract-conformant payloads.
 | Exit criteria | All CPTs, taxonomies, post meta, term meta, and the settings option registered from `mu-plugins`; every field editable through a meta box that satisfies the §2 contract in `03-CONTENT-MODEL.md`; the `gotg_editor` role exists and is verified against the capability table; all five endpoints return 200 and pass `.strict()` Zod contract tests against staging; core REST locked down; revalidation webhook fires |
 | Dependencies | Phase 0 |
 | Deliverables | `mu-plugins/gotg/` complete including `meta.php`, `admin/` meta boxes, `gotg-repeater.js`, `gotg-block-builder.js`; `types/api.ts` and `types/api.schema.ts`; contract test suite; editor guardrails; role definition |
-| Note | This phase is larger than it was under a fields plugin. Admin UI is roughly 6.5 of its 20.25 developer-days. That cost is the accepted tradeoff in ADR-0025 and `01-TECH-STACK.md` §4.1. |
+| Note | This phase is larger than it was under a fields plugin. Admin UI is roughly 6.5 of its 20.5 developer-days. That cost is the accepted tradeoff in ADR-0025 and `01-TECH-STACK.md` §4.1. |
 | Note | Blocked partially on DP-21 (the real menu) for *content*, not for *schema*. Price variants are modelled as a repeater from the outset, so a size-tiered menu no longer forces a model change — this is why R-06 is retired. |
 
 ### Phase 2 — Design System and Primitives
@@ -218,6 +218,7 @@ Areas: **BE** backend · **FE** frontend · **CO** content · **DO** devops.
 | T-BE-24 | Implement the revalidation webhook sender with the full tag map | 1 | BE | T-BE-22 | 0.75 |
 | T-BE-25 | Editor guardrails: single-section enforcement, page deletion block, undersized-upload rejection, missing-alt notice, sectionless-item badge | 1 | BE | T-BE-10, T-BE-15 | 1 |
 | T-BE-26 | Admin accessibility pass: keyboard-only run through every meta box, axe scan of the edit screens, screen-reader check of the repeater | 1 | BE | T-BE-10, T-BE-12, T-BE-15, T-BE-16 | 0.75 |
+| T-BE-28 | Manual meta box QA pass in a browser: price-variant repeater (add, reorder, remove to zero, save and reload to confirm order), media modal (set / replace / remove a menu section image), event end-before-start rejection, event conditional-field value survival across a save | 1 | BE | T-BE-10, T-BE-11, T-BE-13 | 0.25 |
 | T-FE-03 | Transcribe `types/api.ts` from `04-API-CONTRACT.md` | 1 | FE | T-BE-22 | 0.75 |
 | T-FE-04 | Write `types/api.schema.ts` with the exactness type assertions | 1 | FE | T-FE-03 | 0.75 |
 | T-FE-05 | Contract test suite hitting staging; wire into CI | 1 | FE | T-FE-04, T-DO-06 | 0.75 |
@@ -259,7 +260,7 @@ Areas: **BE** backend · **FE** frontend · **CO** content · **DO** devops.
 | T-FE-39 | Sentry with PII scrubbing and source-map upload | 4 | FE | T-FE-01 | 0.75 |
 | T-DO-07 | Verify every row of the integration failure matrix by breaking each integration | 4 | DO | T-FE-35, T-FE-36, T-FE-37 | 1 |
 | T-DO-08 | Configure Resend domain verification: SPF and DKIM records | 4 | DO | T-FE-35 | 0.5 |
-| T-CO-01 | Enter the complete menu into staging with current prices | 5 | CO | T-BE-25, DP-21 | 2 |
+| T-CO-01 | Enter the complete menu into staging with current prices | 5 | CO | T-BE-25, T-BE-28, DP-21 | 2 |
 | T-CO-02 | Write and enter About copy, owner bios, and positioning | 5 | CO | DP-03 | 1 |
 | T-CO-03 | Enter the next 60 days of events | 5 | CO | T-BE-11 | 0.5 |
 | T-CO-04 | Populate Site Settings including hours exceptions | 5 | CO | T-BE-12, T-BE-16, DP-01, DP-09 | 0.5 |
@@ -290,7 +291,7 @@ Areas: **BE** backend · **FE** frontend · **CO** content · **DO** devops.
 | T-CO-10 | Record how the client actually uses the Phase 1 admin screens; log friction points | 8 | CO | T-CO-09 | 0.5 |
 | T-DO-21 | Agree the Phase 2 backlog with the client | 8 | DO | T-DO-18, T-CO-10 | 0.5 |
 
-Total: **99 developer-days** for Phase 0–8.
+Total: **99.25 developer-days** for Phase 0–8.
 
 #### T-BE-27 — blur placeholder generation
 
@@ -375,7 +376,28 @@ assertions is T-FE-04, and the CI run against staging is T-FE-05
 (`01-TECH-STACK.md` §3.2). The scaffold intentionally shipped types without the
 schema. No new task.
 
-The increase from the previous 89 is Phase 1 growing from 13 to 20.25 days: the
+#### T-BE-28 — manual meta box QA gate
+
+The meta box save layer was verified end to end from WP-CLI, but the browser
+behaviours were verified only by reading the code — the CLI cannot drive DOM
+interaction. This task closes that gap with one manual admin pass:
+
+| Area | Check |
+|---|---|
+| Price-variant repeater | Add rows, reorder with move up/down, remove down to zero, then save and reload and confirm the rows persist in the order left on screen |
+| Media modal | On a menu section image, set an image, replace it, and remove it; confirm the stored attachment ID follows |
+| Event validation | An end before the start is rejected with the inline error, and the start still saves (partial write) |
+| Event conditional fields | A performer entered then hidden by switching event type away from live music survives the save and reappears on switching back |
+
+**It is a gate before content entry (T-CO-01) begins**, not a nice-to-have.
+Seeding sixty-plus real menu items on top of a repeater whose reorder or
+remove-to-zero silently mis-serialises would corrupt data invisibly — the
+payload would still parse, just with the wrong prices against the wrong labels.
+Catching that costs a quarter-day here and a re-entry of the whole menu later.
+Off the critical path only in that it can run any time after the boxes are
+built; it must complete before Phase 5.
+
+The increase from the previous 89 is Phase 1 growing from 13 to 20.5 days: the
 admin UI that a fields plugin would have supplied is now build work. Itemised:
 
 | Work | Days |
