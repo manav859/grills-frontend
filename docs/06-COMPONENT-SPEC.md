@@ -761,8 +761,11 @@ thumbnail with a `1/1` ratio and the text column flexes.
 
 Accessibility:
 - Renders as `<article>`.
-- The item name is a `Heading` at `headingLevel` (default `4`, since sections
-  own the `<h3>`). Prices are **not** headings.
+- The item name is a `Heading` at `headingLevel`. `MenuSection` sets this from
+  its own depth — a card under a depth-0 section (an `<h2>`) is `<h3>`; a card
+  under a depth-1 child section (an `<h3>`) is `<h4>` — so the outline never
+  skips a level. The prop defaults to `4` for standalone use, but in the menu it
+  is always passed explicitly. Prices are **not** headings.
 - Prices render through `PriceList`, which handles one or many variants.
 - Dietary tags render as a `<ul>` with `aria-label="Dietary information"`, one
   `Badge` per `<li>`.
@@ -801,6 +804,12 @@ import to avoid a name collision with this component.)
 Anatomy: `<section id={section.slug}>` > `Heading` (`level={2}` at depth 0,
 `level={3}` at depth 1) > [`intro`] > [`image`] > `MenuCard` list > child
 sections.
+
+Card heading level is derived from depth and passed to every `MenuCard`:
+depth 0 → `3`, depth 1 → `4`. With this section's own heading (`<h2>` at depth 0,
+`<h3>` at depth 1) the outline stays contiguous — `h1` (page) → `h2` (section) →
+`h3` (card), or `h1` → `h2` → `h3` (child section) → `h4` (child card). This is
+why `MenuCard.headingLevel` is set here rather than left at its `4` default.
 
 Filtering: an item renders when `activeDaypart === 'all'` or
 `item.availability.includes(activeDaypart)`. Filtering happens on the client
