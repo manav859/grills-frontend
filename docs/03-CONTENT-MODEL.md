@@ -185,8 +185,14 @@ add_action( 'add_meta_boxes', 'gotg_register_meta_boxes' );
 
 ### 2.3 Save contract
 
-Every save handler performs these seven checks **in this order**, and returns
-early on any failure:
+Every save handler follows the same four-part shape — **gate, validate, surface
+errors, write** — and the seven checks still run in this order. They are not
+re-implemented per box: steps 1–5 live once in `gotg_meta_box_can_save()` and
+the write in `gotg_meta_box_write()`, both in `admin/meta-box-framework.php`. A
+`box-*.php` file that re-implements nonce or capability checking is rejected in
+review (`07-CODING-STANDARDS.md` §1.2).
+
+The canonical handler — the shape a new meta box copies:
 
 ```php
 <?php
@@ -198,50 +204,103 @@ early on any failure:
  * @return void
  */
 function gotg_save_menu_item_details_box( $post_id, $post ) {
-	// 1. Correct post type.
-	if ( 'gotg_menu_item' !== $post->post_type ) {
+	if ( ! gotg_meta_box_can_save(
+		$post_id,
+		$post,
+		'gotg_menu_item',
+		'gotg_menu_item_details_box_nonce',
+		'gotg_save_gotg_menu_item_details_box'
+	) ) {
 		return;
 	}
 
-	// 2. Not an autosave.
-	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-		return;
-	}
-
-	// 3. Not a revision.
-	if ( wp_is_post_revision( $post_id ) ) {
-		return;
-	}
-
-	// 4. Nonce present and valid.
-	$nonce = isset( $_POST['gotg_menu_item_details_box_nonce'] )
-		? sanitize_text_field( wp_unslash( $_POST['gotg_menu_item_details_box_nonce'] ) )
-		: '';
-
-	if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'gotg_save_gotg_menu_item_details_box' ) ) {
-		return;
-	}
-
-	// 5. Capability on this specific post.
-	if ( ! current_user_can( 'edit_post', $post_id ) ) {
-		return;
-	}
-
-	// 6. Validate. Collect errors; do not write invalid values.
 	$errors = array();
-	$values = gotg_validate_menu_item_input( $_POST, $errors );
+	$values = gotg_validate_menu_item_input( $_POST, $errors ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in gotg_meta_box_can_save().
 
 	if ( ! empty( $errors ) ) {
 		gotg_store_meta_errors( $post_id, $errors );
 	}
 
-	// 7. Write only the fields that validated.
-	foreach ( $values as $meta_key => $value ) {
-		update_post_meta( $post_id, $meta_key, $value );
-	}
+	gotg_meta_box_write( $post_id, $values );
 }
 add_action( 'save_post', 'gotg_save_menu_item_details_box', 10, 2 );
 ```
+
+`gotg_validate_menu_item_input()` is the only per-box piece: it reads `$_POST`,
+applies the field rules, records errors, and returns a `meta key => value` map
+in which a `null` value means "delete". Each box has its own; it is not shown
+here. Everything else is the shared framework:
+
+```php
+<?php
+/**
+ * Runs the first five steps of the save contract: correct post type, not an
+ * autosave, not a revision, a present and valid nonce, and the per-post
+ * capability. Returns false to abort the save early.
+ *
+ * @param int     $post_id      Post being saved.
+ * @param WP_Post $post         Post object.
+ * @param string  $post_type    Expected post type.
+ * @param string  $nonce_field  Name of the nonce field in $_POST.
+ * @param string  $nonce_action Nonce action string.
+ * @return bool Whether the caller may proceed to validate and write.
+ */
+function gotg_meta_box_can_save( $post_id, $post, $post_type, $nonce_field, $nonce_action ) {
+	if ( $post_type !== $post->post_type ) {
+		return false;
+	}
+
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return false;
+	}
+
+	if ( wp_is_post_revision( $post_id ) ) {
+		return false;
+	}
+
+	$nonce = isset( $_POST[ $nonce_field ] )
+		? sanitize_text_field( wp_unslash( $_POST[ $nonce_field ] ) )
+		: '';
+
+	if ( '' === $nonce || ! wp_verify_nonce( $nonce, $nonce_action ) ) {
+		return false;
+	}
+
+	return current_user_can( 'edit_post', $post_id );
+}
+
+/**
+ * Applies a validated field map to a post.
+ *
+ * A `null` value deletes the key — the empty-optional rule, so get_post_meta()
+ * returns the registered default and the shaper omits it. Any other value is
+ * written through update_post_meta(), which triggers the key's registered
+ * sanitize_callback. Keys absent from the map (a field that failed validation)
+ * are left untouched, so the previous value survives — the partial-write rule.
+ *
+ * @param int                  $post_id Post ID.
+ * @param array<string, mixed> $values  Meta key to value; null means delete.
+ * @return void
+ */
+function gotg_meta_box_write( $post_id, array $values ) {
+	foreach ( $values as $meta_key => $value ) {
+		if ( null === $value ) {
+			delete_post_meta( $post_id, $meta_key );
+			continue;
+		}
+
+		update_post_meta( $post_id, $meta_key, $value );
+	}
+}
+```
+
+The seven checks map onto this shape as:
+
+| Step | Where it lives |
+|---|---|
+| 1 correct post type · 2 not an autosave · 3 not a revision · 4 nonce present and valid · 5 per-post capability | `gotg_meta_box_can_save()`, returning early on any failure |
+| 6 validate, collect errors, do not write invalid values | the box's own `gotg_validate_*()`, then `gotg_store_meta_errors()` |
+| 7 write only the fields that validated | `gotg_meta_box_write()` — writes, deletes empties, leaves failed fields untouched |
 
 Rules:
 
