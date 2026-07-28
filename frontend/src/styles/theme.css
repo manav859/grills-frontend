@@ -96,6 +96,11 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
 
+  --aspect-square: var(--aspect-square);
+  --aspect-4-3: var(--aspect-4-3);
+  --aspect-3-2: var(--aspect-3-2);
+  --aspect-16-9: var(--aspect-16-9);
+
   --ease-standard: var(--ease-standard);
   --ease-out: var(--ease-out);
   --ease-in: var(--ease-in);

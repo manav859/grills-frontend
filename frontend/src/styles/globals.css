@@ -33,3 +33,24 @@ body {
   ) {
   outline: none;
 }
+
+/*
+ * Touch-target floor — 06-COMPONENT-SPEC.md §Button. A control shorter than the
+ * 44px minimum (the `sm` size, 36px) keeps its compact visual height while a
+ * transparent overlay extends the interactive box to 44px. Applied via the
+ * whitelisted `gotg-` escape-hatch class (07-CODING-STANDARDS.md §8.1).
+ */
+.gotg-hit-target {
+  position: relative;
+}
+
+.gotg-hit-target::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  min-height: var(--control-height-md); /* 44px */
+}
+

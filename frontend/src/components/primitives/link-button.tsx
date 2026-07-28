@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 import { Icon } from '@/components/primitives/icons/icon';
 import type { IconName } from '@/components/primitives/icons/index';
@@ -40,10 +40,17 @@ const VARIANT = {
   danger: 'bg-danger text-ink-inverse',
 } as const;
 
+/*
+ * Height comes from the control-height token (05-DESIGN-SYSTEM.md §4.5) as
+ * min-height — there is no spacing step for 36/44/52px, so no h-* utility. `sm`
+ * is 36px (below the 44px touch minimum) and carries `.gotg-hit-target`, which
+ * expands its interactive box to 44px without changing the visual height. `md`
+ * and `lg` meet 44px by height.
+ */
 const SIZE = {
-  sm: 'px-3 py-3 text-label',
-  md: 'px-5 py-3 text-body',
-  lg: 'px-6 py-4 text-body-lg',
+  sm: { classes: 'px-3 text-label gotg-hit-target', height: 'var(--control-height-sm)' },
+  md: { classes: 'px-5 text-body', height: 'var(--control-height-md)' },
+  lg: { classes: 'px-6 text-body-lg', height: 'var(--control-height-lg)' },
 } as const;
 
 function isDialHref(href: string): boolean {
@@ -60,12 +67,14 @@ export function LinkButton({
   fullWidth = false,
   children,
 }: LinkButtonProps): ReactNode {
+  const sizing = SIZE[size];
   const className = cn(
     'inline-flex items-center justify-center gap-2 rounded-md font-body font-semibold transition-colors active:translate-y-px',
     VARIANT[variant],
-    SIZE[size],
+    sizing.classes,
     fullWidth && 'w-full',
   );
+  const style: CSSProperties = { minHeight: sizing.height };
 
   const content = (
     <>
@@ -78,7 +87,7 @@ export function LinkButton({
   // tel:/mailto: — a plain anchor, never a new tab.
   if (isDialHref(href)) {
     return (
-      <a href={href} className={className}>
+      <a href={href} className={className} style={style}>
         {content}
       </a>
     );
@@ -92,6 +101,7 @@ export function LinkButton({
         target="_blank"
         rel="noopener noreferrer"
         className={className}
+        style={style}
       >
         {content}
         <VisuallyHidden> (opens in a new tab)</VisuallyHidden>
@@ -100,7 +110,7 @@ export function LinkButton({
   }
 
   return (
-    <Link href={href} className={className}>
+    <Link href={href} className={className} style={style}>
       {content}
     </Link>
   );

@@ -268,6 +268,45 @@ contrast change accompanies it.
 | `--border-width` | `1px` | Default |
 | `--border-width-thick` | `2px` | Focus ring, active nav underline, input focus |
 
+### 4.4 Aspect ratios
+
+The fixed image ratios the component specs use (`06-COMPONENT-SPEC.md`
+§`Image`). Tokenised so image boxes reserve space without an arbitrary Tailwind
+value; each maps to an `aspect-*` utility.
+
+| Token | Value | Utility | Usage |
+|---|---|---|---|
+| `--aspect-square` | `1 / 1` | `aspect-square` | `MenuCard` md thumbnail, `PersonCard` portrait |
+| `--aspect-4-3` | `4 / 3` | `aspect-4-3` | General card media |
+| `--aspect-3-2` | `3 / 2` | `aspect-3-2` | `MenuCard` mobile image, `SplitFeature`, section banners |
+| `--aspect-16-9` | `16 / 9` | `aspect-16-9` | Wide/landscape media |
+
+A component that needs two ratios across breakpoints composes the utilities —
+`MenuCard` uses `aspect-3-2 md:aspect-square` for its full-width mobile image and
+96px square desktop thumbnail. No new ratio may be introduced as an arbitrary
+value; add a token here instead.
+
+### 4.5 Control heights
+
+Interactive-control heights (`06-COMPONENT-SPEC.md` §`Button`). The step spacing
+scale (§3) deliberately omits the values these need (9/11/13 → 36/44/52px), so
+control height is its own small token set rather than a spacing extension.
+
+| Token | Value | px | Size | Meets 44px touch box |
+|---|---|---|---|---|
+| `--control-height-sm` | `2.25rem` | 36 | `Button size="sm"` | **No — see below** |
+| `--control-height-md` | `2.75rem` | 44 | `Button size="md"`, default | Yes, by height |
+| `--control-height-lg` | `3.25rem` | 52 | `Button size="lg"` | Yes, by height |
+
+Applied as `min-height` (controls reference the token directly, as with
+`--container-max`; there is no `--spacing` step for these values, so no `h-*`
+utility). `md` and `lg` meet the 44×44 minimum touch target by height alone.
+`sm` is **36px tall — below the 44px minimum** — and keeps that compact visual
+height for pointer-dense contexts; its interactive box is expanded to 44px by a
+transparent overlay (`.gotg-hit-target`, in `frontend/src/styles/globals.css`),
+so the touch target is preserved without inflating the visual. This is the
+"achieved with padding on `sm`" line in §`Button` made concrete.
+
 ---
 
 ## 5. Motion
@@ -462,6 +501,17 @@ prohibited except in the reduced-motion and print blocks.
   --header-height: 64px;
   --mobile-cta-bar-height: 64px;
 
+  /* Control heights */
+  --control-height-sm: 2.25rem;
+  --control-height-md: 2.75rem;
+  --control-height-lg: 3.25rem;
+
+  /* Aspect ratios */
+  --aspect-square: 1 / 1;
+  --aspect-4-3: 4 / 3;
+  --aspect-3-2: 3 / 2;
+  --aspect-16-9: 16 / 9;
+
   /* Radii */
   --radius-none: 0px;
   --radius-sm: 4px;
@@ -635,6 +685,11 @@ Tailwind CSS 4 reads its theme from CSS. `frontend/src/styles/theme.css`:
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
+
+  --aspect-square: var(--aspect-square);
+  --aspect-4-3: var(--aspect-4-3);
+  --aspect-3-2: var(--aspect-3-2);
+  --aspect-16-9: var(--aspect-16-9);
 
   --ease-standard: var(--ease-standard);
   --ease-out: var(--ease-out);
