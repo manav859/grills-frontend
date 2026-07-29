@@ -70,8 +70,8 @@ The first four are **reproducible**: losing them costs an install, not content.
 remote, and in no host backup, because §8.1's automated backups cover production
 only and §2 classifies the local environment as disposable.
 
-That classification holds only for content the seed script reproduces
-(`tools/seed-content.php`, §4.2 step 8, idempotent). Content authored beyond the
+That classification holds only for content the seed command reproduces
+(`wp gotg seed`, §4.6, idempotent). Content authored beyond the
 seed is unique to that file and is lost with it. Such content is backed up by
 the manual procedure in §8 — the same off-site principle as §8.2, applied to the
 SQLite file rather than a MySQL dump. Do not solve this by committing the
@@ -91,7 +91,7 @@ into a code repository.
 | Database | **SQLite** | MySQL 8.0 | MySQL 8.0 | MySQL 8.0 |
 | PHP | Studio-bundled 8.2 | 8.2 | 8.2 | 8.2 |
 | Content | Local seed data | Staging content | Client UAT content | Live content |
-| Purpose | Development | Per-PR review | Client review, contract tests, migration rehearsal | Live site |
+| Purpose | Development | Per-PR review | Client review, contract tests, engine-parity checks | Live site |
 | Frontend access | Local only | Vercel deployment protection (team SSO) | HTTP Basic auth | Public |
 | WordPress admin access | Local only | Host IP allow-list + strong credentials | Host IP allow-list + strong credentials | 2FA required, IP allow-list preferred |
 | `robots.txt` | n/a | `Disallow: /` | `Disallow: /` | Full rules per `08-PERFORMANCE-SEO-A11Y.md` §4.4 |
@@ -356,12 +356,14 @@ Assumes Windows 11 with git installed.
    ```
 8. Seed content:
    ```bash
-   wp @gotg-local eval-file tools/seed-content.php
+   wp gotg seed
    ```
-   The seed script creates the five routed pages with their exact slugs, one
-   `gotg_location`, the default `gotg_menu_section` and `gotg_dietary` terms,
-   a handful of `gotg_menu_item` records, two `gotg_event` records, and
-   populates Site Settings. It is idempotent.
+   The seed command (`mu-plugins/gotg/cli/`, WP-CLI only) creates the five routed
+   pages, one `gotg_location`, the `gotg_menu_section` and `gotg_dietary` terms,
+   a full set of `gotg_menu_item` records, upcoming and past `gotg_event` records,
+   sideloads placeholder images, and populates Site Settings. It is idempotent
+   (matched by slug) and every object it creates is tagged `_gotg_seeded`. See
+   §4.6 — this is the same command used to provision every environment.
 9. Verify: `http://localhost:{studio-port}/wp-json/gotg/v1/home` returns JSON
    containing a `_global` key.
 
@@ -399,6 +401,53 @@ Intelephense, PHP Sniffer.
 - [ ] Saving a menu item in `wp-admin` triggers a revalidation request visible in the Next.js dev server log
 - [ ] Clicking Preview on a draft page opens the frontend with draft content
 - [ ] `git config core.autocrlf` returns nothing or `false` in both repositories — LF is enforced by `.gitattributes` and must not be overridden
+
+### 4.6 Content provisioning — `wp gotg seed`
+
+Both the schema and the demo content are **code**, and no database is ever moved
+between environments.
+
+| Layer | Where it lives | How it reaches an environment |
+|---|---|---|
+| Schema (post types, taxonomies, meta, the settings option) | `mu-plugins/gotg/` | Deploy mu-plugins (git + rsync) |
+| Content (location, sections, dietary, menu, events, Site Settings, placeholder images) | `mu-plugins/gotg/cli/seed-data.php` | `wp gotg seed` |
+
+Provisioning a brand-new environment — local SQLite, a preview box, staging or
+production MySQL — is therefore two steps, identical everywhere:
+
+```bash
+# 1. deploy the code
+git pull && rsync mu-plugins   # or the host's git deploy
+# 2. provision content
+wp gotg seed
+```
+
+There is **no database import, no dump, no `search-replace`, no migration.** The
+database is disposable in every environment because everything in it can be
+rebuilt from code.
+
+Command surface:
+
+| Command | Effect |
+|---|---|
+| `wp gotg seed` | Create or update all demo content. Idempotent — safe to run repeatedly; matches by slug and updates in place. |
+| `wp gotg seed --fresh` | Delete seeded content first, then reseed. |
+| `wp gotg unseed` | Remove everything the seed owns. |
+
+Every object the command creates carries a `_gotg_seeded` meta marker (posts and
+attachments) or term meta (terms); Site Settings ownership is tracked by the
+`gotg_seed_owns_settings` option. `unseed` and `--fresh` act **only** on
+seed-owned objects, so on production a reseed refreshes demo scaffolding without
+touching a single hand-entered menu item or hand-configured setting. The command
+uses WordPress APIs exclusively — `wp_insert_post`, `update_post_meta`,
+`wp_set_object_terms`, `update_option` — never raw SQL, which is what makes it
+run identically on SQLite and MySQL.
+
+**Replacing the demo content with the client's real menu is one edit to
+`seed-data.php`** — the arrays there are separated from the create/update logic
+in `class-seed-command.php`, so a content author swaps data without touching code.
+Once the real menu lives in `seed-data.php`, it too is provisioned by
+`wp gotg seed`, in every environment, with no migration.
 
 ---
 
@@ -441,8 +490,8 @@ Stage 5 is the mechanism that makes `AGENTS.md`'s "documentation and schema ship
 together" rule enforceable rather than aspirational.
 
 Backend deploys copy files only. There is no build step, no Composer install on
-the host, and no database migration — content lives in the database and travels
-separately (§8).
+the host, and no database migration — content is provisioned in place by
+`wp gotg seed` (§4.6), never moved between environments.
 
 ---
 
@@ -949,37 +998,30 @@ a compatible engine. Translation is good but not total.
 | Staging is authoritative | Contract tests (`04-API-CONTRACT.md` §10) run against staging MySQL, never against local SQLite | CI stage 4 |
 | No local-only sign-off | A feature is not "done" until it has been verified on staging. Local verification is necessary and not sufficient. | Definition of Done in `11-PROJECT-PLAN.md` |
 | Early staging | Staging with MySQL is provisioned in Phase 0, before feature work begins, so divergence surfaces in week 1 rather than week 8 | Task T-DO-03 |
-| Content lives in MySQL | Real content is authored on staging and promoted to production. Local content is disposable seed data. | §11 |
+| Parity by reseed, not by migration | No database crosses environments (§4.6). Engine parity is verified by running the **same** `wp gotg seed` against SQLite and against MySQL, then running the same endpoint checks against both — identical content, produced by identical WordPress API calls, compared for identical payloads. A divergence is an engine bug, isolated from any data-transfer artefact. | CI, §10.5 |
+| Content is code | Demo content is `seed-data.php`, provisioned by `wp gotg seed` in every environment. There is no "author on staging, promote to production" data movement to go wrong. | §4.6, §11 |
 | `utf8mb4` verified | The production and staging database character set is checked at provisioning and recorded | T-DO-03 acceptance criteria |
 
-### 10.5 Migration path
+### 10.5 No migration path — provisioning instead
 
-There is no SQLite-to-MySQL migration of content, because local content is never
-promoted. The paths are:
+**No content is migrated between engines, in either direction.** The earlier
+design moved a MySQL dump into SQLite ("the one place the engines meet"); that
+step is deleted. It was the fragile part of the system — a MySQL dump is MySQL
+SQL and does not import cleanly into SQLite — and it no longer exists, because
+content is provisioned rather than transferred.
 
 | Direction | Mechanism | Frequency |
 |---|---|---|
 | Code: local → staging → production | git + rsync (§5.2) | Per merge |
-| Content: staging → production | `wp db export` / `wp db import` plus `wp search-replace` for URLs, or the host's push tool | At launch, then rarely |
-| Content: production → staging | Host pull tool, or `wp db export` / `wp db import` | Before any risky change, to rehearse against real data |
-| Content: production/staging → local | `wp db export` on MySQL, then `wp db import` into the local SQLite site. **This is the one place the engines meet.** | On demand, best-effort |
+| Content: any environment | `wp gotg seed` runs locally in that environment (§4.6) | On provision, and whenever the seed data changes |
 
-The last row is the fragile one. A MySQL dump is MySQL SQL and does not import
-cleanly into SQLite. Two workable approaches:
+The demo content is identical on SQLite and MySQL because it is produced by the
+same WordPress API calls from the same `seed-data.php`, not copied across. When
+the client's real menu is needed everywhere, it goes into `seed-data.php` and is
+provisioned the same way.
 
-1. **Preferred — WP-CLI content export/import.** Use
-   `wp export --dir=... --post_type=gotg_menu_item,gotg_event,gotg_location,page`
-   to produce WXR, then `wp import` on the local site. This is engine-agnostic
-   because it moves content through WordPress's own APIs rather than through SQL.
-   Media requires `--fetch-attachments`. All field values are post meta and term
-   meta, which WXR carries natively, so they survive the round trip. The
-   `gotg_site_settings` option is **not** in WXR and must be exported separately
-   with `wp option get gotg_site_settings --format=json`.
-2. **Fallback — reseed.** Run the seed script (§4.2 step 8). Faster, always
-   works, and adequate for most development.
-
-Attempting a direct `mysqldump` → SQLite import is not supported and must not be
-attempted; it will produce a broken local site and waste hours.
+`mysqldump` → SQLite import remains unsupported, but it is now irrelevant: there
+is no reason to move a database at all.
 
 ### 10.6 If SQLite proves untenable
 
@@ -994,18 +1036,26 @@ divergence within one phase.**
 
 ---
 
-## 11. Content Promotion
+## 11. Content Provisioning
+
+There is no database promotion. Content reaches an environment one of two ways,
+and never by moving a database:
+
+| Content | Source | How it lands |
+|---|---|---|
+| Structural / demo content (sections, dietary vocabulary, Site Settings shape, the routed pages, placeholder menu and events) | `seed-data.php` | `wp gotg seed` in that environment (§4.6) |
+| The client's real menu, once supplied | Edited into `seed-data.php` | `wp gotg seed` in that environment |
+| Ad-hoc hand edits in `wp-admin` (a one-off price fix, a new event) | The environment's own database | Stay in that database; backed up per §8, not migrated |
 
 | Question | Answer |
 |---|---|
-| Where is real content authored? | Staging WordPress (MySQL) |
-| Where is local content from? | The idempotent seed script; it is disposable |
-| How does content reach production? | Database export/import at launch; afterwards production is authored directly |
-| After launch, is content ever pushed from staging? | No. Production becomes the authoring environment. Staging is refreshed *from* production before risky changes. |
-| Is media migrated? | Yes — `wp-content/uploads/` is copied alongside the database at launch, and `wp search-replace` rewrites URLs |
-| Are user accounts migrated? | Yes, at launch. Passwords are reset for every account on the production instance. |
+| Where is content authored? | In `seed-data.php` (code) for anything meant to exist everywhere; directly in an environment's `wp-admin` for one-off edits local to that environment. |
+| How does content reach production? | `wp gotg seed` on production, after the mu-plugins deploy. No import, no dump. |
+| Does a reseed on production destroy hand-entered content? | No. `unseed`/`--fresh` touch only `_gotg_seeded` objects (§4.6); hand-entered content and hand-configured settings survive. |
+| Is media migrated? | Placeholder images are sideloaded from `mu-plugins/gotg/seed/assets/` by the seed. Real photography is uploaded per environment and backed up by the host (§8) — it is content, not code, and is not part of a database migration because there is none. |
+| Are user accounts migrated? | No. Accounts are per-environment and are not content; each environment has its own, created at provisioning. |
 
-Post-launch, the flow reverses: production is the source of truth for content,
-staging is refreshed from production, and local remains seeded. This is stated
-explicitly because the pre-launch and post-launch directions are opposite, and
-getting it backwards overwrites live content.
+Pre-launch and post-launch are the **same** direction here: provision by running
+the seed. The old model — author on staging, then export/import the database to
+production, then reverse the flow after launch — is gone, and with it the class
+of bug where getting the direction backwards overwrote live content.
