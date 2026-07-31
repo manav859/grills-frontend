@@ -230,6 +230,7 @@ padding, margin, and gap.
 | `--header-height` | `64px` | Mobile |
 | `--header-height-desktop` | `80px` | `md` and up |
 | `--mobile-cta-bar-height` | `64px` | Persistent bottom call bar; body gets matching bottom padding below `md` |
+| `--hero-height` | `min(72svh, 560px)` | `Hero` band min-height; steps to `min(80svh, 680px)` at `md` and `min(84svh, 760px)` at `lg`. `svh` avoids a jump as mobile chrome shows/hides (06-COMPONENT-SPEC.md §Hero) |
 
 ---
 

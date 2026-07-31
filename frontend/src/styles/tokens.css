@@ -115,6 +115,10 @@
   --header-height: 64px;
   --mobile-cta-bar-height: 64px;
 
+  /* Hero band height — steps up at md and lg (06-COMPONENT-SPEC.md §Hero).
+     `svh` avoids a jump as mobile browser chrome shows and hides. */
+  --hero-height: min(72svh, 560px);
+
   /* Control heights — button and control sizing (05-DESIGN-SYSTEM.md §4.5) */
   --control-height-sm: 2.25rem; /* 36px */
   --control-height-md: 2.75rem; /* 44px */
@@ -190,6 +194,13 @@
     --gutter: var(--space-10);
     --section-y: var(--space-24);
     --header-height: 80px;
+    --hero-height: min(80svh, 680px);
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --hero-height: min(84svh, 760px);
   }
 }
 

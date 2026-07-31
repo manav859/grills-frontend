@@ -10,9 +10,33 @@ import type { ReactNode } from 'react';
  * for a glyph that has not been drawn.
  */
 
-export type IconName = 'flame' | 'instagram';
+export type IconName =
+  | 'flame'
+  | 'instagram'
+  | 'chevron-left'
+  | 'chevron-right';
 
 export const GLYPHS = {
+  'chevron-left': (
+    <path
+      d="M15 5 8 12l7 7"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  ),
+  'chevron-right': (
+    <path
+      d="M9 5l7 7-7 7"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  ),
   flame: (
     <path
       d="M12 2c1 3-1.5 4.5-1.5 7A2.5 2.5 0 0 0 12 11a2.5 2.5 0 0 0 1.5-2.5C15 10 17 12 17 15a5 5 0 0 1-10 0c0-3 2-5 5-13Z"

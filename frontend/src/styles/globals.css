@@ -54,3 +54,66 @@ body {
   min-height: var(--control-height-md); /* 44px */
 }
 
+/*
+ * RichText — 06-COMPONENT-SPEC.md §TextSection and RichText. The single scoped
+ * style hook for server-sanitised CMS HTML, so the CMS never emits inline styles
+ * or classes. Every value is a token; the selector list matches the wp_kses
+ * allow-list in 04-API-CONTRACT.md §6.2 (p, ul, ol, li, a, strong, em, h3).
+ * Applied via the whitelisted `gotg-` escape-hatch class (07-CODING-STANDARDS.md
+ * §8.1).
+ */
+.gotg-rich-text {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--text-body-lh);
+  color: var(--color-ink);
+}
+
+.gotg-rich-text > * + * {
+  margin-top: var(--space-4);
+}
+
+.gotg-rich-text h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  line-height: var(--text-h3-lh);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-ink);
+  margin-top: var(--space-8);
+}
+
+.gotg-rich-text ul,
+.gotg-rich-text ol {
+  padding-left: var(--space-6);
+}
+
+.gotg-rich-text ul {
+  list-style: disc;
+}
+
+.gotg-rich-text ol {
+  list-style: decimal;
+}
+
+.gotg-rich-text li + li {
+  margin-top: var(--space-2);
+}
+
+.gotg-rich-text strong {
+  font-weight: var(--font-weight-semibold);
+}
+
+.gotg-rich-text em {
+  font-style: italic;
+}
+
+.gotg-rich-text a {
+  color: var(--color-brand-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.gotg-rich-text a:hover {
+  color: var(--color-brand-primary-hover);
+}
+
