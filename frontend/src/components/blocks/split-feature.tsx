@@ -1,0 +1,77 @@
+import { Fragment } from 'react';
+import type { ReactNode } from 'react';
+
+import { Container } from '@/components/layout/container';
+import { Section } from '@/components/layout/section';
+import { SplitLayout } from '@/components/layout/split-layout';
+import { Heading } from '@/components/primitives/heading';
+import { Image } from '@/components/primitives/image';
+import { LinkButton } from '@/components/primitives/link-button';
+import { Text } from '@/components/primitives/text';
+import { slugId } from '@/lib/slug';
+import type { SplitFeatureBlock } from '@/types/api';
+
+/*
+ * SplitFeature — 06-COMPONENT-SPEC.md §SplitFeature. Section > Container >
+ * SplitLayout > [Image (4/3), content column (heading, body, optional
+ * LinkButton)]. Image full-width above the text below lg; 50/50 at lg with the
+ * side set by block.imageSide.
+ *
+ * `body` is plain text, not HTML: the field's `new_lines: br` setting delivers
+ * literal newlines, so `\n` is rendered as <br /> here rather than parsed.
+ */
+
+export interface SplitFeatureProps {
+  block: SplitFeatureBlock;
+}
+
+function withLineBreaks(text: string): ReactNode {
+  const lines = text.split('\n');
+  return lines.map((line, index) => (
+    <Fragment key={index}>
+      {index > 0 ? <br /> : null}
+      {line}
+    </Fragment>
+  ));
+}
+
+export function SplitFeature({ block }: SplitFeatureProps): ReactNode {
+  const headingId = slugId('split', block.heading);
+
+  const media = (
+    <Image
+      image={block.image}
+      fill
+      aspectRatio="4/3"
+      sizes="(min-width: 1024px) 50vw, 100vw"
+    />
+  );
+
+  const content = (
+    <div className="flex flex-col items-start gap-4">
+      <Heading level={2} id={headingId}>
+        {block.heading}
+      </Heading>
+      <Text size="body-lg" tone="muted">
+        {withLineBreaks(block.body)}
+      </Text>
+      {block.cta ? (
+        <LinkButton
+          href={block.cta.href}
+          variant="secondary"
+          isExternal={block.cta.isExternal}
+        >
+          {block.cta.label}
+        </LinkButton>
+      ) : null}
+    </div>
+  );
+
+  return (
+    <Section ariaLabelledBy={headingId}>
+      <Container>
+        <SplitLayout imageSide={block.imageSide} media={media} content={content} />
+      </Container>
+    </Section>
+  );
+}
