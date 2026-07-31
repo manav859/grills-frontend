@@ -1,0 +1,128 @@
+import Link from 'next/link';
+import type { ReactNode } from 'react';
+
+import { Badge } from '@/components/primitives/badge';
+import { Heading } from '@/components/primitives/heading';
+import { Image } from '@/components/primitives/image';
+import { LinkButton } from '@/components/primitives/link-button';
+import { Text } from '@/components/primitives/text';
+import { cn } from '@/lib/cn';
+import type { EventItem } from '@/types/api';
+
+/*
+ * EventCard — 06-COMPONENT-SPEC.md §EventCard. <article> > date block > [image]
+ * > linked heading > summary > metadata row (time, performer, ticket badge) >
+ * LinkButton to the detail page.
+ *
+ * The title is the only link, wrapped in the heading — no card-wide click
+ * target, which would force a duplicate link or a non-semantic clickable div.
+ * Dates render in America/Los_Angeles regardless of the visitor's zone, so the
+ * server and client agree and the displayed date is factually the event's
+ * Pacific date.
+ */
+
+export interface EventCardProps {
+  event: EventItem;
+  variant?: 'list' | 'preview';
+  headingLevel?: 2 | 3;
+}
+
+const ZONE = 'America/Los_Angeles';
+
+const monthFormat = new Intl.DateTimeFormat('en-US', {
+  timeZone: ZONE,
+  month: 'short',
+});
+const dayFormat = new Intl.DateTimeFormat('en-US', {
+  timeZone: ZONE,
+  day: 'numeric',
+});
+const timeFormat = new Intl.DateTimeFormat('en-US', {
+  timeZone: ZONE,
+  hour: 'numeric',
+  minute: '2-digit',
+});
+
+function ticketLabel(event: EventItem): string {
+  return event.coverCharge !== undefined
+    ? `Ticketed · $${String(event.coverCharge)}`
+    : 'Ticketed';
+}
+
+export function EventCard({
+  event,
+  variant = 'list',
+  headingLevel = 3,
+}: EventCardProps): ReactNode {
+  const start = new Date(event.startDateTime);
+  const hasPerformer =
+    event.performerName !== undefined && event.performerName !== '';
+
+  return (
+    <article
+      className={cn(
+        'flex flex-col gap-4',
+        variant === 'list' && 'md:flex-row md:items-start md:gap-6',
+      )}
+    >
+      <div
+        className={cn(
+          'flex shrink-0 flex-col items-center justify-center rounded-md bg-surface-sunken px-4 py-3',
+          variant === 'list' && 'md:w-20',
+        )}
+      >
+        <Text as="span" size="overline" tone="muted" weight="semibold">
+          {monthFormat.format(start)}
+        </Text>
+        <span className="font-display text-h3 font-semibold text-ink">
+          {dayFormat.format(start)}
+        </span>
+      </div>
+
+      <div className="flex flex-1 flex-col gap-2">
+        {event.image ? (
+          <Image
+            image={event.image}
+            fill
+            aspectRatio="3/2"
+            sizes={
+              variant === 'list'
+                ? '(min-width: 768px) 66vw, 100vw'
+                : '(min-width: 1024px) 33vw, 100vw'
+            }
+          />
+        ) : null}
+
+        <Heading level={headingLevel} visualLevel="h4">
+          <Link href={`/events/${event.slug}`}>{event.title}</Link>
+        </Heading>
+
+        {event.summary !== '' ? (
+          <Text size="body-sm" tone="muted">
+            {event.summary}
+          </Text>
+        ) : null}
+
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <Text as="span" size="body-sm">
+            <time dateTime={event.startDateTime}>{timeFormat.format(start)}</time>
+          </Text>
+          {hasPerformer ? (
+            <Text as="span" size="body-sm" tone="muted">
+              {event.performerName}
+            </Text>
+          ) : null}
+          {event.isTicketed ? (
+            <Badge tone="brand">{ticketLabel(event)}</Badge>
+          ) : null}
+        </div>
+
+        <div className="pt-1">
+          <LinkButton href={`/events/${event.slug}`} variant="ghost" size="sm">
+            View details
+          </LinkButton>
+        </div>
+      </div>
+    </article>
+  );
+}
