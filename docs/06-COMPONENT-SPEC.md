@@ -739,6 +739,46 @@ Data source: `FeaturedItemsBlock.items` ← `gotg_menu_item` where `is_featured`
 
 ---
 
+### `EventsPreview`
+
+Purpose: A preview strip of upcoming events on a composed page (Home), linking
+through to the full Events page. The events counterpart of `FeaturedMenuRow`,
+built on the same Section→Container→heading→grid→CTA frame for consistency.
+
+```ts
+export interface EventsPreviewProps {
+  block: EventsPreviewBlock;
+}
+```
+
+Anatomy: `Section` > `Container` > heading > `Grid` (3 columns) of `EventCard`
+(`variant="preview"`) > optional `LinkButton` to `/events`.
+
+Responsive: the `Grid` is one column below `sm`, two at `sm`, three at `lg` —
+the standard `Grid columns={3}` behaviour. Each `EventCard` is the `preview`
+variant, which stacks its date block, image, and details for the three-across
+layout.
+
+Accessibility:
+- Heading is `level={2}`, wired to the `Section` through `ariaLabelledBy`.
+- Each card's title is rendered at `headingLevel={3}`, so the outline runs page
+  `h1` → `h2` (this block) → `h3` (event titles) with no skipped level.
+- The linked title, `<time>` elements, ticket badge, and Pacific-zoned date
+  formatting are the `EventCard` contract (below).
+
+Empty state: the shaper resolves upcoming events server-side and, when there are
+none and the block's `hide_when_empty` is set, omits the block from the payload
+entirely (`04-API-CONTRACT.md` §4). The component additionally guards
+`events.length === 0` and returns `null` rather than rendering an empty grid.
+
+Data source: `EventsPreviewBlock` ← the `events_preview` page block
+(`03-CONTENT-MODEL.md` §9.3). `heading` and the optional `cta` (its label with a
+fixed `/events` href) come from the block; `events` is resolved server-side from
+`gotg_event`, capped at the stored `count` (clamped 1–6). The stored `count` and
+`hide_when_empty` fields shape the payload rather than reaching the component.
+
+---
+
 ### `MenuCard`
 
 Purpose: Renders a single menu item within a menu section list.
