@@ -698,17 +698,28 @@ export interface CtaBandProps {
 
 Full-width band, centred content, max width `--measure-narrow`.
 
-| `style` | Section tone | Button variant |
-|---|---|---|
-| `brand` | `--color-brand-primary` background, inverse text | `secondary` (white on red) |
-| `ink` | `inverse` | `primary` |
-| `surface` | `sunken` | `primary` |
+| `style` | Band background | Text | Button variant |
+|---|---|---|---|
+| `brand` | `--color-brand-primary` (`bg-brand`) | inverse | `secondary` (white on red) |
+| `ink` | `--color-surface-inverse` (`bg-surface-inverse`) | inverse | `primary` |
+| `surface` | `--color-surface-sunken` (`bg-surface-sunken`) | default ink | `primary` |
 
 `brand` deliberately uses a `secondary` button: a red button on a red band would
 have no boundary. Contrast of white-on-`--color-brand-primary` is 6.42:1.
 
-Accessibility: heading `level={2}`; band is a `Section` with `ariaLabelledBy`
-pointing at that heading.
+CtaBand owns its band styling rather than delegating to `Section`. Its `brand`
+background is `--color-brand-primary`, which is **not** a `Section` tone — the
+Section contract defines only `surface`, `sunken`, and `inverse` (`05-DESIGN-SYSTEM.md`
+§10). Because a brand-coloured band is wanted by this one component, adding a
+fourth `brand` tone to the shared Section contract is not warranted; CtaBand
+instead renders its own `<section>` and applies the same `--section-y` vertical
+padding `Section` uses, so the rhythm matches. The `ink` and `surface` styles
+map onto colours a `Section` tone would produce, but all three go through the
+one code path here for consistency.
+
+Accessibility: the band is a labelled `<section>` — `aria-labelledby` points at
+the `level={2}` heading — so it is the same landmark a `Section` would render,
+just styled by the component.
 
 ---
 
