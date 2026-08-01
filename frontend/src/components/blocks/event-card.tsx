@@ -7,6 +7,11 @@ import { Image } from '@/components/primitives/image';
 import { LinkButton } from '@/components/primitives/link-button';
 import { Text } from '@/components/primitives/text';
 import { cn } from '@/lib/cn';
+import {
+  formatEventDay,
+  formatEventMonth,
+  formatEventTime,
+} from '@/lib/datetime';
 import type { EventItem } from '@/types/api';
 
 /*
@@ -27,22 +32,6 @@ export interface EventCardProps {
   headingLevel?: 2 | 3;
 }
 
-const ZONE = 'America/Los_Angeles';
-
-const monthFormat = new Intl.DateTimeFormat('en-US', {
-  timeZone: ZONE,
-  month: 'short',
-});
-const dayFormat = new Intl.DateTimeFormat('en-US', {
-  timeZone: ZONE,
-  day: 'numeric',
-});
-const timeFormat = new Intl.DateTimeFormat('en-US', {
-  timeZone: ZONE,
-  hour: 'numeric',
-  minute: '2-digit',
-});
-
 function ticketLabel(event: EventItem): string {
   return event.coverCharge !== undefined
     ? `Ticketed · $${String(event.coverCharge)}`
@@ -54,7 +43,6 @@ export function EventCard({
   variant = 'list',
   headingLevel = 3,
 }: EventCardProps): ReactNode {
-  const start = new Date(event.startDateTime);
   const hasPerformer =
     event.performerName !== undefined && event.performerName !== '';
 
@@ -65,19 +53,20 @@ export function EventCard({
         variant === 'list' && 'md:flex-row md:items-start md:gap-6',
       )}
     >
-      <div
+      <time
+        dateTime={event.startDateTime}
         className={cn(
           'flex shrink-0 flex-col items-center justify-center rounded-md bg-surface-sunken px-4 py-3',
           variant === 'list' && 'md:w-20',
         )}
       >
         <Text as="span" size="overline" tone="muted" weight="semibold">
-          {monthFormat.format(start)}
+          {formatEventMonth(event.startDateTime)}
         </Text>
         <span className="font-display text-h3 font-semibold text-ink">
-          {dayFormat.format(start)}
+          {formatEventDay(event.startDateTime)}
         </span>
-      </div>
+      </time>
 
       <div className="flex flex-1 flex-col gap-2">
         {event.image ? (
@@ -105,7 +94,9 @@ export function EventCard({
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <Text as="span" size="body-sm">
-            <time dateTime={event.startDateTime}>{timeFormat.format(start)}</time>
+            <time dateTime={event.startDateTime}>
+              {formatEventTime(event.startDateTime)}
+            </time>
           </Text>
           {hasPerformer ? (
             <Text as="span" size="body-sm" tone="muted">
