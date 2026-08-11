@@ -29,6 +29,7 @@ schemas, or client libraries. See ADR-0003 in `12-GLOSSARY-DECISIONS.md`.
 | No raw WP objects | No `rendered`/`raw` wrappers, no `_links`, no `yoast_head`, no internal IDs unless the frontend needs them. |
 | Storage is invisible | Fields are native post meta, term meta, and one option (`03-CONTENT-MODEL.md`). No response key mirrors a meta key: `_gotg_is_featured` reaches the frontend as `isFeatured`. Changing the authoring mechanism does not change this contract. |
 | Dates | ISO 8601 with explicit offset, e.g. `2026-08-15T18:00:00-07:00` |
+| Display text | Every human-readable text field (titles, names, headings, descriptions, labels, address fields, taglines) is returned **decoded**: plain UTF-8 with no HTML entities. WordPress stores term names and returns post titles with entities (`&amp;`, `&#8217;`); the shapers decode once at the API boundary (§6) so `Sandwiches & Burgers` is delivered as `Sandwiches & Burgers`, never `Sandwiches &amp; Burgers`. Consumers render text as-is and must not decode again. Rich-text (HTML) fields — `bodyHtml`, `descriptionHtml` — are **not** entity-decoded: they are sanitised HTML where an entity can be significant. |
 | Money | `number` in USD, two-decimal precision, no currency symbol, no string |
 | Absent optional values | The key is **omitted**, never `null`, never `""`. Nullable-by-design fields (`recurring`, `announcement`) are explicitly `T \| null` and are always present. |
 | Empty collections | `[]`, never omitted |
