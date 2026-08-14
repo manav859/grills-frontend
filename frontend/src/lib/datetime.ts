@@ -97,3 +97,44 @@ export function formatWallClockRange(
       : `${start.label}${start.suffix}`;
   return { startLabel, endLabel: `${end.label}${end.suffix}` };
 }
+
+/**
+ * A single zoneless "HH:MM" as a 12-hour clock label with minutes and an
+ * upper-case meridiem — e.g. "06:00" → "6:00 AM", "21:00" → "9:00 PM". Used by
+ * the opening-hours table, whose cells read "6:00 AM – 9:00 PM".
+ */
+export function formatWallClockTime(value: string): string {
+  const [hRaw = '0', mRaw = '00'] = value.split(':');
+  const hour = Number(hRaw);
+  const suffix = hour < 12 ? 'AM' : 'PM';
+  const twelve = hour % 12 === 0 ? 12 : hour % 12;
+  return `${String(twelve)}:${mRaw} ${suffix}`;
+}
+
+const CALENDAR_MONTHS = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+] as const;
+
+/**
+ * A zoneless calendar date "YYYY-MM-DD" as "Mon D" — e.g. "2026-11-26" →
+ * "Nov 26". Parsed by parts, never through `new Date`, so a date-only value is
+ * never shifted a day by a timezone offset.
+ */
+export function formatCalendarDate(value: string): string {
+  const [, mRaw = '01', dRaw = '01'] = value.split('-');
+  const month = CALENDAR_MONTHS[Number(mRaw) - 1] ?? '';
+  return `${month} ${String(Number(dRaw))}`.trim();
+}
+
+const isoDateFormat = new Intl.DateTimeFormat('en-CA', {
+  timeZone: PACIFIC_TIME_ZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
+
+/** Today's date in the restaurant's timezone as an "YYYY-MM-DD" string. */
+export function pacificTodayISODate(): string {
+  return isoDateFormat.format(new Date());
+}
