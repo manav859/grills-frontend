@@ -2,6 +2,8 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 import { Container } from '@/components/layout/container';
+import { MobileCtaBar } from '@/components/navigation/mobile-cta-bar';
+import { MobileNav } from '@/components/navigation/mobile-nav';
 import { PrimaryNav } from '@/components/navigation/primary-nav';
 import { SiteFooter } from '@/components/navigation/site-footer';
 import { SiteHeader } from '@/components/navigation/site-header';
@@ -17,10 +19,13 @@ import type { GlobalData } from '@/types/api';
  * can mark the active item — PrimaryNav is a Server Component (not in the client
  * register), so it cannot read the pathname from a client hook.
  *
- * Deferred, both Client Components not needed to render this route honestly:
- * AnnouncementBar (only when global.announcement !== null; null here) and
- * MobileCtaBar / MobileNav (the below-md hamburger and call bar). Below md the
- * header shows the brand and the call CTA, and the footer carries full nav.
+ * Below md the desktop nav and header CTA are hidden; the MobileNav hamburger
+ * (in the header) and the fixed MobileCtaBar (Call / Menu) take over. Both are
+ * Client Components; the rest of the shell stays a Server Component. `main`
+ * carries .gotg-has-mobile-bar so the fixed bar never overlaps content.
+ *
+ * Still deferred: AnnouncementBar (only when global.announcement !== null; null
+ * here).
  */
 
 export interface PageShellProps {
@@ -54,23 +59,28 @@ export function PageShell({
                 items={navigation.primary}
                 currentPath={currentPath}
               />
-              <LinkButton
-                href={navigation.headerCta.href}
-                variant="primary"
-                isExternal={navigation.headerCta.isExternal}
-              >
-                {navigation.headerCta.label}
-              </LinkButton>
+              <div className="hidden md:block">
+                <LinkButton
+                  href={navigation.headerCta.href}
+                  variant="primary"
+                  isExternal={navigation.headerCta.isExternal}
+                >
+                  {navigation.headerCta.label}
+                </LinkButton>
+              </div>
+              <MobileNav global={global} />
             </div>
           </div>
         </Container>
       </SiteHeader>
 
-      <main id="main-content" tabIndex={-1}>
+      <main id="main-content" tabIndex={-1} className="gotg-has-mobile-bar">
         {children}
       </main>
 
       <SiteFooter global={global} />
+
+      <MobileCtaBar global={global} />
     </>
   );
 }
