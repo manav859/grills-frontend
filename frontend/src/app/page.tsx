@@ -1,8 +1,17 @@
+import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 import { PageBlockRenderer } from '@/components/blocks/page-block-renderer';
 import { PageShell } from '@/components/layout/page-shell';
+import { JsonLd } from '@/components/seo/json-ld';
 import { getHome } from '@/lib/api';
+import { homeJsonLd } from '@/lib/json-ld';
+import { buildMetadata } from '@/lib/seo';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const home = await getHome();
+  return buildMetadata(home.seo, home._global, '/');
+}
 
 /*
  * Home route — 02-INFORMATION-ARCHITECTURE.md §2.1, 06-COMPONENT-SPEC.md §10.6.
@@ -29,7 +38,8 @@ import { getHome } from '@/lib/api';
  * not render, and PageBlockRenderer renders nothing for an unknown type rather
  * than throwing. The route makes no assumption about which blocks are present.
  *
- * generateMetadata / JSON-LD is the SEO task; this slice renders the page body.
+ * generateMetadata builds title/description/OG/canonical from `home.seo` and
+ * defaults (08 §4.2); JsonLd emits the Restaurant + WebSite graph (08 §4.5).
  */
 
 export default async function HomePage(): Promise<ReactNode> {
@@ -37,8 +47,11 @@ export default async function HomePage(): Promise<ReactNode> {
   const { _global, blocks } = home;
 
   return (
-    <PageShell global={_global} currentPath="/">
-      <PageBlockRenderer blocks={blocks} headingLevelOffset={0} />
-    </PageShell>
+    <>
+      <JsonLd data={homeJsonLd(_global)} />
+      <PageShell global={_global} currentPath="/">
+        <PageBlockRenderer blocks={blocks} headingLevelOffset={0} />
+      </PageShell>
+    </>
   );
 }

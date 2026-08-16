@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 import { HoursTable } from '@/components/blocks/hours-table';
@@ -12,7 +13,15 @@ import { Section } from '@/components/layout/section';
 import { SocialLinks } from '@/components/navigation/social-links';
 import { Heading } from '@/components/primitives/heading';
 import { Text } from '@/components/primitives/text';
+import { JsonLd } from '@/components/seo/json-ld';
 import { getContact } from '@/lib/api';
+import { contactJsonLd } from '@/lib/json-ld';
+import { buildMetadata } from '@/lib/seo';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const contact = await getContact();
+  return buildMetadata(contact.seo, contact._global, '/contact');
+}
 
 /*
  * Contact route — 02-INFORMATION-ARCHITECTURE.md §2.6, 06-COMPONENT-SPEC.md
@@ -27,8 +36,9 @@ import { getContact } from '@/lib/api';
  * message, Follow us) → any page-block headings at h2 via headingLevelOffset={0}.
  *
  * When `formEnabled` is false (no configured recipient), the form is replaced by
- * the phone/email fallback, per 04-API-CONTRACT §5.5. generateMetadata / JSON-LD
- * (Restaurant, OpeningHoursSpecification) are the SEO task, not this slice.
+ * the phone/email fallback, per 04-API-CONTRACT §5.5. generateMetadata builds
+ * metadata from `contact.seo` (08 §4.2); JsonLd emits the Restaurant node with
+ * its OpeningHoursSpecification (08 §4.5).
  */
 
 export default async function ContactPage(): Promise<ReactNode> {
@@ -38,6 +48,7 @@ export default async function ContactPage(): Promise<ReactNode> {
 
   return (
     <PageShell global={_global} currentPath="/contact">
+      <JsonLd data={contactJsonLd(_global)} />
       <PageHeader title={title} />
 
       <Section ariaLabelledBy="contact-find-heading">

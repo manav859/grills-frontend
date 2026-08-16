@@ -1,9 +1,16 @@
+import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 import { PageBlockRenderer } from '@/components/blocks/page-block-renderer';
 import { PageHeader } from '@/components/blocks/page-header';
 import { PageShell } from '@/components/layout/page-shell';
 import { getAbout } from '@/lib/api';
+import { buildMetadata } from '@/lib/seo';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const about = await getAbout();
+  return buildMetadata(about.seo, about._global, '/about');
+}
 
 /*
  * About route — 02-INFORMATION-ARCHITECTURE.md §2.5. One fetch, in this Server
@@ -22,7 +29,8 @@ import { getAbout } from '@/lib/api';
  * nested headings each block owns (PersonCard names are <h3>) follow from there,
  * so the outline never skips a level.
  *
- * generateMetadata / JSON-LD is the SEO task; this slice renders the page body.
+ * generateMetadata builds title/description/OG/canonical from `about.seo` and
+ * defaults (08 §4.2). No JSON-LD node is placed on /about (08 §4.5).
  */
 
 export default async function AboutPage(): Promise<ReactNode> {

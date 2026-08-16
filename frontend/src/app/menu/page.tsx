@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 import { DietaryLegend } from '@/components/blocks/dietary-legend';
@@ -8,7 +9,15 @@ import { PageShell } from '@/components/layout/page-shell';
 import { Section } from '@/components/layout/section';
 import { Heading } from '@/components/primitives/heading';
 import { Text } from '@/components/primitives/text';
+import { JsonLd } from '@/components/seo/json-ld';
 import { getMenu } from '@/lib/api';
+import { menuJsonLd } from '@/lib/json-ld';
+import { buildMetadata } from '@/lib/seo';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const menu = await getMenu();
+  return buildMetadata(menu.seo, menu._global, '/menu');
+}
 
 /*
  * Menu route — 02-INFORMATION-ARCHITECTURE.md §2.2. One fetch, in this Server
@@ -20,10 +29,10 @@ import { getMenu } from '@/lib/api';
  * Components) are deferred; the full, unfiltered menu renders and is indexable
  * without them.
  *
- * Not rendered here: menu.blocks (the page-builder blocks — PageBlockRenderer
- * and the block library are a separate task) and generateMetadata / JSON-LD
- * (the SEO task, 08-PERFORMANCE-SEO-A11Y.md). menu.blocks is empty for this
- * content; nothing is silently dropped.
+ * generateMetadata builds metadata from `menu.seo` (08 §4.2); JsonLd emits the
+ * Menu + MenuSection + MenuItem graph (08 §4.5). Not rendered here: menu.blocks
+ * (the page-builder blocks are a separate task); it is empty for this content,
+ * so nothing is silently dropped.
  */
 
 export default async function MenuPage(): Promise<ReactNode> {
@@ -41,6 +50,7 @@ export default async function MenuPage(): Promise<ReactNode> {
 
   return (
     <PageShell global={_global} currentPath="/menu">
+      <JsonLd data={menuJsonLd(_global, sections)} />
       <PageHeader title={title} />
 
       <Section>
