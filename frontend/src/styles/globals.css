@@ -117,3 +117,66 @@ body {
   color: var(--color-brand-primary-hover);
 }
 
+
+/*
+ * Mobile chrome — MobileNav drawer + MobileCtaBar (06-COMPONENT-SPEC.md
+ * §MobileNav/§MobileCtaBar). Transition timing comes from tokens; all motion is
+ * removed under prefers-reduced-motion. The panel/scrim slide and the CTA bar's
+ * hide-on-scroll transform are applied by toggling translate utilities in the
+ * components; these rules only own the transition and the reduced-motion reset.
+ */
+@keyframes gotg-drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes gotg-scrim-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* The drawer and scrim mount already open, so the entrance is a keyframe
+ * animation (a transform transition would have nothing to animate from). */
+.gotg-drawer {
+  animation: gotg-drawer-in var(--duration-slow) var(--ease-spring);
+}
+
+.gotg-scrim {
+  animation: gotg-scrim-in var(--duration-base) ease;
+}
+
+/* The CTA bar's hide-on-scroll toggles a transform, so it transitions. */
+.gotg-cta-bar {
+  transition: transform var(--duration-base) ease;
+}
+
+/* The fixed bottom CTA bar reserves space so it never overlaps page content,
+ * below md only (where the bar is shown). */
+.gotg-has-mobile-bar {
+  padding-bottom: 0;
+}
+
+@media (max-width: 767.98px) {
+  .gotg-has-mobile-bar {
+    padding-bottom: var(--mobile-cta-bar-height);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gotg-drawer,
+  .gotg-scrim {
+    animation: none;
+  }
+
+  .gotg-cta-bar {
+    transition: none;
+  }
+}

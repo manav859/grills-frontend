@@ -14,9 +14,39 @@ export type IconName =
   | 'flame'
   | 'instagram'
   | 'chevron-left'
-  | 'chevron-right';
+  | 'chevron-right'
+  | 'menu'
+  | 'close'
+  | 'phone';
 
 export const GLYPHS = {
+  menu: (
+    <path
+      d="M4 7h16M4 12h16M4 17h16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    />
+  ),
+  close: (
+    <path
+      d="M6 6l12 12M18 6L6 18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    />
+  ),
+  phone: (
+    <path
+      d="M6.5 3h3l1.5 4-2 1.4a11 11 0 0 0 5 5l1.4-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5a2 2 0 0 1 2-2Z"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinejoin="round"
+    />
+  ),
   'chevron-left': (
     <path
       d="M15 5 8 12l7 7"
