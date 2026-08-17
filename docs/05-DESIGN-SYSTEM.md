@@ -118,7 +118,7 @@ body copy uses ink. This is the split the branding deck specifies.
 | `--color-success-subtle` | `#DFE7DE` | Success message background | Background only | — | ink on it: 14.95:1 |
 | `--color-warning` | `#8A5A00` | Limited availability, closing-soon notice | 5.57:1 — AA | 4.56:1 — AA | 4.72:1 — AA |
 | `--color-warning-subtle` | `#ECE5D5` | Warning background | Background only | — | ink on it: 15.05:1 |
-| `--color-danger` | `#96201A` | Form errors, "Closed" indicator, allergen badge | 7.84:1 — AAA | 6.42:1 — AAA | 5.73:1 — AA |
+| `--color-danger` | `#96201A` | Form errors, "Closed" indicator, allergen badge | 7.84:1 — AAA | 6.42:1 — AAA | 6.40:1 — AA |
 | `--color-danger-subtle` | `#EFDED8` | Error message background | Background only | — | ink on it: 14.49:1 |
 | `--color-info` | `#1F5E82` | Neutral informational notices | 6.62:1 — AAA | 5.42:1 — AA | 5.56:1 — AA |
 | `--color-info-subtle` | `#DFE6E5` | Info background | Background only | — | ink on it: 14.92:1 |
@@ -172,7 +172,7 @@ Mapped from the `color` field on `gotg_dietary` terms — see
 | `neutral` | `--color-surface-sunken` `#EAE0DA` | `--color-ink` `#111111` | 14.54:1 — AAA |
 | `green` | `--color-success-subtle` `#DFE7DE` | `--color-success` `#1F6B4A` | 5.10:1 — AA |
 | `amber` | `--color-warning-subtle` `#ECE5D5` | `--color-warning` `#8A5A00` | 4.72:1 — AA |
-| `red` | `--color-danger-subtle` `#EFDED8` | `--color-danger` `#96201A` | 5.73:1 — AA |
+| `red` | `--color-danger-subtle` `#EFDED8` | `--color-danger` `#96201A` | 6.40:1 — AA |
 
 Only `green` (Vegetarian) and `neutral` (Gluten-Free) are in use — the client
 confirmed those two dietary tags and no others. `amber` and `red` stay in the
@@ -973,7 +973,14 @@ documents must list the same components.
 ## 11. Contrast Validation Protocol
 
 §1 is frozen now that DP-10 has closed, but contrast is still re-validated
-whenever a colour token changes:
+whenever a colour token changes.
+
+**Status:** the automated suite below does **not** exist yet — there is no test
+runner in `frontend/package.json`. When the brand palette landed on 2026-08-17
+the 37 pairings in §1 were validated by an equivalent computation run directly
+against `tokens.css`, and all 37 passed. Building the suite properly is still
+outstanding; until it exists, a colour change means re-running that check by
+hand and updating the ratios in §1.
 
 1. `pnpm test:contrast` runs a Vitest suite that computes WCAG contrast for
    every pairing declared in §1 and fails if a pairing falls below its stated
