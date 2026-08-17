@@ -3,9 +3,14 @@ import type { ReactNode } from 'react';
 
 import '@/styles/globals.css';
 
+/*
+ * Root fallback only. Every route builds its own metadata from the CMS via
+ * lib/seo.ts; this is what a route without a payload would show.
+ */
 export const metadata: Metadata = {
   title: 'Grill on the Green',
-  description: 'American classics and slow-smoked barbecue in Simi Valley.',
+  description:
+    'American classics and slow-smoked barbecue at Simi Hills Golf Course, Simi Valley. Open daily 6am to 9pm — no tee time required.',
 };
 
 export default function RootLayout({

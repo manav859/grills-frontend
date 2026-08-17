@@ -35,9 +35,7 @@
 
 @font-face {
   font-family: 'Rilley Fallback';
-  src:
-    local('Georgia'),
-    local('Times New Roman');
+  src: local('Georgia'), local('Times New Roman');
   size-adjust: 82.51%;
   ascent-override: 90.89%;
   descent-override: 30.3%;
@@ -66,9 +64,7 @@
 
 @font-face {
   font-family: 'Corbert Compact Fallback';
-  src:
-    local('Arial Bold'),
-    local('Helvetica Bold');
+  src: local('Arial Bold'), local('Helvetica Bold');
   size-adjust: 62.36%;
   ascent-override: 196.43%;
   descent-override: 54.2%;
@@ -95,9 +91,7 @@
 
 @font-face {
   font-family: 'Carla Sans Fallback';
-  src:
-    local('Arial'),
-    local('Helvetica');
+  src: local('Arial'), local('Helvetica');
   size-adjust: 133.99%;
   ascent-override: 69.48%;
   descent-override: 24.55%;

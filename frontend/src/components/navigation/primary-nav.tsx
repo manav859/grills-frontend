@@ -35,9 +35,9 @@ export function PrimaryNav({ items, currentPath }: PrimaryNavProps): ReactNode {
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'font-display text-label uppercase text-ink transition-colors hover:text-brand',
+                  'font-display text-label text-ink hover:text-brand uppercase transition-colors',
                   active
-                    ? 'border-b-2 border-brand pb-1 font-semibold'
+                    ? 'border-brand border-b-2 pb-1 font-semibold'
                     : 'font-medium',
                 )}
               >

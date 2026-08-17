@@ -501,7 +501,7 @@ for ordering.
 | Item | Source | Destination | Notes |
 |---|---|---|---|
 | Phone number | Squarespace footer | `gotg_location.phone` | Verify it is current |
-| Hours (Mon–Sun 6am–9pm) | Squarespace footer | `gotg_location.regular_hours` | Verify; capture exceptions per DP-09 |
+| Hours (Mon–Sun 6am–9pm) | Squarespace footer | `gotg_location.regular_hours` | **Confirmed 2026-08-17** — daily 6am–9pm, closed Christmas Day and New Year's Day. Both seeded as exceptions and marked provisional; any other holiday variance is still DP-09 |
 | Instagram handle | Squarespace embed | `gotg_site_settings.social_links` | — |
 | Tagline "Smoke your birdie" | Squarespace | `gotg_site_settings.tagline` | — |
 | Live music schedule (Fri/Sat 6–9pm) | Squarespace Events | `gotg_site_settings` recurring programme | Modelled as a standing programme, not repeated events |

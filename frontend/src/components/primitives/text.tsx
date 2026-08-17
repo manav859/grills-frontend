@@ -52,10 +52,7 @@ export function Text({
 }: TextProps): ReactNode {
   const Tag = as;
   return (
-    <Tag
-      id={id}
-      className={cn(SIZE[size], TONE[tone], WEIGHT[weight])}
-    >
+    <Tag id={id} className={cn(SIZE[size], TONE[tone], WEIGHT[weight])}>
       {children}
     </Tag>
   );

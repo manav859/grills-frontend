@@ -1222,11 +1222,11 @@ position above.
 
 | Field Label | Meta Key | Type | Single | Required | Default | Sanitize Callback | Validation | Editor Help Text | Notes |
 |---|---|---|---|---|---|---|---|---|---|
-| Street Address | `_gotg_street_address` | `string` | `true` | Yes | — | `sanitize_text_field` | 1–100 chars | Street number and name only. `[NEEDS CLIENT INPUT]` — DP-01. | API `streetAddress`. Feeds `PostalAddress` schema. |
+| Street Address | `_gotg_street_address` | `string` | `true` | Yes | — | `sanitize_text_field` | 1–100 chars | Street number and name only. Confirmed 2026-08-17: `5031 Alamo St`. | API `streetAddress`. Feeds `PostalAddress` schema. |
 | Address Line 2 | `_gotg_address_line_2` | `string` | `true` | No | — | `sanitize_text_field` | ≤ 60 chars | Suite, building, or "at Simi Hills Golf Course". | API `addressLine2?`. |
 | City | `_gotg_city` | `string` | `true` | Yes | `Simi Valley` | `sanitize_text_field` | 1–60 chars | — | API `city`. |
 | State | `_gotg_state` | `string` | `true` | Yes | `CA` | `gotg_sanitize_state` | Exactly 2 chars, `[A-Z]{2}` | Two-letter state code. | API `state`. Uppercased by the sanitizer. |
-| Postal Code | `_gotg_postal_code` | `string` | `true` | Yes | — | `sanitize_text_field` | `^\d{5}(-\d{4})?$` | `[NEEDS CLIENT INPUT]` — DP-01. | API `postalCode`. |
+| Postal Code | `_gotg_postal_code` | `string` | `true` | Yes | — | `sanitize_text_field` | `^\d{5}(-\d{4})?$` | Confirmed 2026-08-17: `93063`. | API `postalCode`. |
 | Country | `_gotg_country` | `string` | `true` | Yes | `US` | `gotg_sanitize_state` | Exactly 2 chars | ISO country code. | API `country`. |
 | Latitude | `_gotg_latitude` | `number` | `true` | Yes | **none registered** — see §0.4 | `gotg_sanitize_float` | −90 to 90 | Decimal latitude. Copy from Google Maps. | API `latitude`. Feeds `GeoCoordinates` schema and the static map. No default is registered deliberately: `0.0` is a real coordinate. Reads as empty until set. |
 | Longitude | `_gotg_longitude` | `number` | `true` | Yes | **none registered** — see §0.4 | `gotg_sanitize_float` | −180 to 180 | Decimal longitude. | API `longitude`. As above — `0.0` latitude and longitude together point at open ocean in the Gulf of Guinea. |

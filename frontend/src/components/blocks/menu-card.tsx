@@ -38,7 +38,10 @@ const DIETARY_TONE = {
   green: 'green',
   amber: 'amber',
   red: 'red',
-} as const satisfies Record<DietaryColor, 'neutral' | 'green' | 'amber' | 'red'>;
+} as const satisfies Record<
+  DietaryColor,
+  'neutral' | 'green' | 'amber' | 'red'
+>;
 
 export function MenuCard({
   item,
@@ -49,11 +52,11 @@ export function MenuCard({
     <article
       className={cn(
         'flex flex-col gap-4 rounded-lg p-4 md:flex-row',
-        variant === 'featured' && 'border border-brand shadow-sm',
+        variant === 'featured' && 'border-brand border shadow-sm',
       )}
     >
       {item.image ? (
-        <div className="relative aspect-3-2 w-full shrink-0 overflow-hidden rounded-lg bg-surface-sunken md:aspect-square md:w-24">
+        <div className="aspect-3-2 bg-surface-sunken relative w-full shrink-0 overflow-hidden rounded-lg md:aspect-square md:w-24">
           <Image
             image={item.image}
             fill
@@ -70,7 +73,11 @@ export function MenuCard({
             </Heading>
             {item.spiceLevel !== 'none' ? (
               <span className="text-accent">
-                <Icon name="flame" size={16} title={SPICE_LABEL[item.spiceLevel]} />
+                <Icon
+                  name="flame"
+                  size={16}
+                  title={SPICE_LABEL[item.spiceLevel]}
+                />
               </span>
             ) : null}
           </span>
@@ -84,10 +91,7 @@ export function MenuCard({
         ) : null}
 
         {item.dietaryTags.length > 0 ? (
-          <ul
-            aria-label="Dietary information"
-            className="flex flex-wrap gap-2"
-          >
+          <ul aria-label="Dietary information" className="flex flex-wrap gap-2">
             {item.dietaryTags.map((tag) => (
               <li key={tag.slug}>
                 <Badge tone={DIETARY_TONE[tag.color]} title={tag.description}>

@@ -44,9 +44,7 @@ function uniformHours(regular: HoursDay[]): string | null {
   }
   const allSame = regular.every(
     (day) =>
-      !day.isClosed &&
-      day.opens === first.opens &&
-      day.closes === first.closes,
+      !day.isClosed && day.opens === first.opens && day.closes === first.closes,
   );
   return allSame
     ? `Open daily ${formatHour(first.opens)}–${formatHour(first.closes)}`
@@ -87,7 +85,7 @@ export function SiteFooter({ global }: SiteFooterProps): ReactNode {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="font-body text-body-sm text-ink-inverse-muted transition-colors hover:text-ink-inverse"
+                    className="font-body text-body-sm text-ink-inverse-muted hover:text-ink-inverse transition-colors"
                   >
                     {item.label}
                   </Link>
@@ -100,7 +98,7 @@ export function SiteFooter({ global }: SiteFooterProps): ReactNode {
             <Heading level={2} visualLevel="h4">
               <span className="text-ink-inverse">Visit</span>
             </Heading>
-            <address className="font-body text-body-sm not-italic text-ink-inverse-muted">
+            <address className="font-body text-body-sm text-ink-inverse-muted not-italic">
               {location.streetAddress}
               {location.addressLine2 ? (
                 <>
@@ -113,7 +111,7 @@ export function SiteFooter({ global }: SiteFooterProps): ReactNode {
             </address>
             <a
               href={location.phoneHref}
-              className="font-body text-body-sm text-ink-inverse-muted transition-colors hover:text-ink-inverse"
+              className="font-body text-body-sm text-ink-inverse-muted hover:text-ink-inverse transition-colors"
             >
               {location.phone}
             </a>
@@ -126,7 +124,7 @@ export function SiteFooter({ global }: SiteFooterProps): ReactNode {
               href={location.directionsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-body text-body-sm text-ink-inverse-muted transition-colors hover:text-ink-inverse"
+              className="font-body text-body-sm text-ink-inverse-muted hover:text-ink-inverse transition-colors"
             >
               Get Directions
             </a>
@@ -140,7 +138,7 @@ export function SiteFooter({ global }: SiteFooterProps): ReactNode {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 border-t border-border-inverse py-6 text-ink-inverse-muted md:flex-row md:items-center md:gap-4">
+        <div className="border-border-inverse text-ink-inverse-muted flex flex-col gap-2 border-t py-6 md:flex-row md:items-center md:gap-4">
           <Text tone="inverse-muted" size="caption">
             © {year} {site.legalName}
           </Text>
@@ -148,7 +146,7 @@ export function SiteFooter({ global }: SiteFooterProps): ReactNode {
             <li>
               <Link
                 href="/privacy-policy"
-                className="font-body text-caption text-ink-inverse-muted transition-colors hover:text-ink-inverse"
+                className="font-body text-caption text-ink-inverse-muted hover:text-ink-inverse transition-colors"
               >
                 Privacy Policy
               </Link>
@@ -156,7 +154,7 @@ export function SiteFooter({ global }: SiteFooterProps): ReactNode {
             <li>
               <Link
                 href="/accessibility"
-                className="font-body text-caption text-ink-inverse-muted transition-colors hover:text-ink-inverse"
+                className="font-body text-caption text-ink-inverse-muted hover:text-ink-inverse transition-colors"
               >
                 Accessibility
               </Link>

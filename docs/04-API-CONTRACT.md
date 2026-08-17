@@ -448,9 +448,14 @@ references through `primary_location_id` — see `03-CONTENT-MODEL.md` §5 and �
 }
 ```
 
-`[ASSUMPTION] The street address, postal code, coordinates, email, legal name,
-and Google Maps CID in this example are placeholders. Real values are blocked on
-DP-01, DP-02, DP-18. Do not copy them into production content.`
+The street address, postal code, and phone in this example are the confirmed
+real values as of 2026-08-17 — 5031 Alamo St, Simi Valley, CA 93063, and
+805-842-2947.
+
+`[ASSUMPTION] The coordinates, email, and Google Maps CID are still
+placeholders, and `legalName` carries the trading name rather than a verified
+registered entity. Blocked on DP-02 and DP-18. Do not copy those four into
+production content.`
 
 ### 3.2 `_global` cost and mitigation
 

@@ -168,7 +168,7 @@ export function MobileNav({ global }: MobileNavProps): ReactNode {
                 role="dialog"
                 aria-modal="true"
                 aria-label="Site menu"
-                className="gotg-drawer fixed inset-y-0 right-0 flex w-full max-w-sm translate-x-0 flex-col gap-8 overflow-y-auto bg-surface-raised px-6 py-4 shadow-lg"
+                className="gotg-drawer bg-surface-raised fixed inset-y-0 right-0 flex w-full max-w-sm translate-x-0 flex-col gap-8 overflow-y-auto px-6 py-4 shadow-lg"
                 style={panelStyle}
               >
                 {/* The compact mark, not the lockup: the drawer's top row is
@@ -192,7 +192,7 @@ export function MobileNav({ global }: MobileNavProps): ReactNode {
                         href={item.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="py-3 font-display text-body-lg font-semibold uppercase text-ink"
+                        className="font-display text-body-lg text-ink py-3 font-semibold uppercase"
                       >
                         {item.label}
                       </a>
@@ -200,8 +200,10 @@ export function MobileNav({ global }: MobileNavProps): ReactNode {
                       <Link
                         key={item.href}
                         href={item.href}
-                        className="py-3 font-display text-body-lg font-semibold uppercase text-ink"
-                        aria-current={pathname === item.href ? 'page' : undefined}
+                        className="font-display text-body-lg text-ink py-3 font-semibold uppercase"
+                        aria-current={
+                          pathname === item.href ? 'page' : undefined
+                        }
                       >
                         {item.label}
                       </Link>
@@ -211,7 +213,7 @@ export function MobileNav({ global }: MobileNavProps): ReactNode {
 
                 <a
                   href={location.phoneHref}
-                  className="font-body text-body-lg font-semibold text-brand"
+                  className="font-body text-body-lg text-brand font-semibold"
                 >
                   Call {location.phone}
                 </a>

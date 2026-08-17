@@ -124,7 +124,6 @@ body {
   color: var(--color-brand-primary-hover);
 }
 
-
 /*
  * Mobile chrome — MobileNav drawer + MobileCtaBar (06-COMPONENT-SPEC.md
  * §MobileNav/§MobileCtaBar). Transition timing comes from tokens; all motion is

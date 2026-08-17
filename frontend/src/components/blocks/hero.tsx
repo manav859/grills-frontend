@@ -51,13 +51,12 @@ export function Hero({ block, isPrimary = false }: HeroProps): ReactNode {
       className="relative flex items-center overflow-hidden"
       style={sectionStyle}
     >
-      <Image
-        image={block.image}
-        fill
-        priority
-        sizes="100vw"
+      <Image image={block.image} fill priority sizes="100vw" />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0"
+        style={overlayStyle}
       />
-      <div aria-hidden="true" className="absolute inset-0" style={overlayStyle} />
 
       <Container>
         <div
@@ -74,7 +73,11 @@ export function Hero({ block, isPrimary = false }: HeroProps): ReactNode {
             </span>
           ) : null}
 
-          <Heading level={isPrimary ? 1 : 2} visualLevel="display" id={headingId}>
+          <Heading
+            level={isPrimary ? 1 : 2}
+            visualLevel="display"
+            id={headingId}
+          >
             <span className="text-ink-inverse">{block.heading}</span>
           </Heading>
 
