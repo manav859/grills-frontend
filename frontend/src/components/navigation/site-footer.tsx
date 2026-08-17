@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+import { Logo } from '@/components/brand/logo';
 import { Container } from '@/components/layout/container';
 import { SocialLinks } from '@/components/navigation/social-links';
 import { Heading } from '@/components/primitives/heading';
 import { Text } from '@/components/primitives/text';
+import { VisuallyHidden } from '@/components/primitives/visually-hidden';
 import type { GlobalData, HoursDay } from '@/types/api';
 
 /*
@@ -61,9 +63,13 @@ export function SiteFooter({ global }: SiteFooterProps): ReactNode {
       <Container as="div">
         <div className="grid grid-cols-1 gap-8 py-12 lg:grid-cols-4">
           <div className="flex flex-col gap-2">
-            <span className="font-display text-h3 font-bold text-ink-inverse">
-              {site.name}
-            </span>
+            {/* The cream lockup, not the full-colour one: the flag red reads
+                2.34:1 against the green band (05-DESIGN-SYSTEM.md §1.1), so the
+                reverse variant is the only one that holds up here. The name is
+                still in the DOM for assistive tech via the visually-hidden
+                heading below. */}
+            <Logo variant="reverse" height="footer" />
+            <VisuallyHidden>{site.name}</VisuallyHidden>
             <Text tone="inverse-muted" size="body-sm">
               {site.tagline}
             </Text>

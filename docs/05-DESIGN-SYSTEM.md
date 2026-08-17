@@ -878,6 +878,7 @@ documents must list the same components.
 | `Badge` | `neutral`, `green`, `amber`, `red`, `brand` | default | `children` |
 | `Icon` | 24 named glyphs | default | `name` |
 | `Image` | `fill`, `fixed` | loading, loaded, error | `image` |
+| `Logo` | `primary`, `reverse`, `mark` | default | none |
 | `Price` | `default`, `large` | default | `amount` |
 | `PriceList` | `default`, `large` | default, single-variant, multi-variant | `variants` |
 | `Divider` | `solid`, `spacer` | default | none |

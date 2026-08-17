@@ -268,8 +268,9 @@ Accessibility: without `title`, renders `aria-hidden="true"` and
 
 ### `Image`
 
-Purpose: The single image entry point. Direct use of `next/image` outside this
-component is prohibited.
+Purpose: The entry point for **CMS media**. Direct use of `next/image` is
+prohibited outside this component and `Logo`, which is the only other permitted
+site — see the note there for why the two cannot be one component.
 
 ```ts
 export interface ImageProps {
@@ -297,6 +298,56 @@ missing `image.alt` on a non-decorative image logs a development warning naming
 the `src` — see `08-PERFORMANCE-SEO-A11Y.md`.
 
 Data source: any `ImageObject` in `04-API-CONTRACT.md`.
+
+---
+
+### `Logo`
+
+Purpose: The brand mark. The second and only other permitted `next/image` site.
+
+```ts
+export type LogoVariant = 'primary' | 'reverse' | 'mark';
+
+export interface LogoProps {
+  variant?: LogoVariant;
+  height?: 'header' | 'footer';
+  priority?: boolean;
+  className?: string;
+}
+```
+
+| `variant` | Asset | Surface |
+|---|---|---|
+| `primary` | `/brand/logo-horizontal.png` (1018×444) | Header, on cream or white |
+| `reverse` | `/brand/logo-reverse.png` (1440×628) | Footer, on brand green |
+| `mark` | `/brand/flag-mark.png` (952×1024) | Compact — the mobile drawer's top row |
+
+Why this is not folded into `Image`: `Image` is typed to the CMS `ImageObject`
+contract, and the logo has no CMS record. Static imports also let Next read the
+intrinsic dimensions at compile time, so the reserved box is exact rather than
+being taken on trust from an API payload.
+
+Layout stability: height comes from `--logo-height` / `--logo-height-footer` and
+width is `auto`, so the lockup's 2.293:1 ratio lives in the asset and cannot
+drift from a second token. The header logo is `priority`, since it is the
+largest above-the-fold element on every route.
+
+Accessibility: renders `alt=""`. It is a mark, not text, and every caller
+already supplies the accessible name — `PageShell` labels its home link "Grill
+on the Green", and `SiteFooter` pairs it with a `VisuallyHidden` site name. Alt
+text here would announce the name twice.
+
+The full-colour lockup is never placed on the green footer band: flag red
+measures 2.34:1 against brand green (`05-DESIGN-SYSTEM.md` §1.1).
+
+**On the narrow-screen fallback.** The design system allows dropping to the flag
+mark where the horizontal lockup will not fit. The header does not need it: at
+`--logo-height: 44px` the lockup renders 101px wide, which alongside the 44px
+hamburger leaves ~127px clear inside a 320px viewport. The `mark` variant is
+used in the mobile drawer instead, where the row genuinely is tight. If a future
+header gains another control, the swap belongs here rather than in `PageShell`.
+
+Data source: static assets under `frontend/public/brand/`. Not CMS media.
 
 ---
 

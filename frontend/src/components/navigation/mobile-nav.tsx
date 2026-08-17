@@ -6,6 +6,7 @@ import { useEffect, useRef, useSyncExternalStore } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
+import { Logo } from '@/components/brand/logo';
 import { SocialLinks } from '@/components/navigation/social-links';
 import { IconButton } from '@/components/primitives/icon-button';
 import {
@@ -170,7 +171,10 @@ export function MobileNav({ global }: MobileNavProps): ReactNode {
                 className="gotg-drawer fixed inset-y-0 right-0 flex w-full max-w-sm translate-x-0 flex-col gap-8 overflow-y-auto bg-surface-raised px-6 py-4 shadow-lg"
                 style={panelStyle}
               >
-                <div className="flex justify-end">
+                {/* The compact mark, not the lockup: the drawer's top row is
+                    narrow and shares it with the close button. */}
+                <div className="flex items-center justify-between">
+                  <Logo variant="mark" height="header" />
                   <IconButton
                     icon="close"
                     label="Close menu"

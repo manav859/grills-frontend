@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+import { Logo } from '@/components/brand/logo';
 import { Container } from '@/components/layout/container';
 import { MobileCtaBar } from '@/components/navigation/mobile-cta-bar';
 import { MobileNav } from '@/components/navigation/mobile-nav';
@@ -47,12 +48,14 @@ export function PageShell({
       <SiteHeader variant="solid">
         <Container as="div">
           <div className="flex items-center justify-between gap-4">
+            {/* The link owns the accessible name; Logo renders alt="" so the
+                name is announced once, not twice. */}
             <Link
               href="/"
-              className="font-display text-h3 font-bold text-ink"
+              className="flex shrink-0 items-center"
               aria-label={site.name}
             >
-              {site.name}
+              <Logo variant="primary" height="header" priority />
             </Link>
             <div className="flex items-center gap-6">
               <PrimaryNav
