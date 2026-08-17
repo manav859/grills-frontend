@@ -211,80 +211,99 @@ add_filter( 'wp_generate_attachment_metadata', 'gotg_generate_blur_placeholder',
 
 ## 3. Font Loading
 
+The three faces the client delivered replaced the provisional Inter/Bitter pair
+on 2026-08-17. Their roles and coverage limits are in `05-DESIGN-SYSTEM.md` §2.1;
+this section covers only how they are loaded.
+
 | Decision | Value | Reason |
 |---|---|---|
 | Hosting | Self-hosted in `public/fonts/` | No third-party connection, no `fonts.googleapis.com` round trip, no privacy exposure |
-| Format | WOFF2 only | Universally supported by the browsers in scope |
-| Subset | Latin, `unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215` | Menu and event copy is English |
-| Weights loaded | Inter 400, 500, 600; Bitter 600, 700 | Five files, ~62 KB total |
+| Format | WOFF2, with the delivered `.ttf`/`.otf` as a second `src` | WOFF2 is universally supported by the browsers in scope; the original stays as the source of record and as a last-resort fallback |
+| Subset | None | Each face is already tiny (97–289 glyphs) and none has coverage to spare. Subsetting Corbert Compact further would cost more in risk than the ~1 KB it would save |
+| Faces loaded | Rilley 34.7 KB, Carla Sans 23.2 KB, Corbert Compact 8.1 KB | Three files, 66.0 KB total, down from 184.1 KB of source |
+| Weights loaded | One static weight each, declared as `font-weight: 400 700` | Each face ships a single cut. The range stops the browser synthesising a bolder version when a `600`/`700` heading asks for one |
 | `font-display` | `swap` | Text is readable immediately; the audience is outdoors and time-pressured |
-| Preload | Inter 400 and Bitter 700 only | These render above the fold on every route |
-| Variable fonts | Not used | Static subsets at five weights are smaller than two variable files here |
+| Preload | Corbert Compact and Rilley only | Those two render above the fold on every route — navigation and headings, hero heading and eyebrow. Carla Sans sets overlines only |
+| Variable fonts | Not available | The client delivered static cuts |
+| Myriad Pro | **Not hosted** | Delivered in the brand pack, but its Adobe licence does not permit web embedding |
 
-Fallback metric matching eliminates the swap-induced layout shift:
+Body copy is **not** on a brand face. All three delivered fonts are display
+faces — see `05-DESIGN-SYSTEM.md` §2.1 — so `--font-body` remains a system stack
+and no body webfont is downloaded at all. That is a content gap, not a
+performance one, but it does mean the byte budget in §1.2 has ~40 KB of unused
+headroom against the figure that assumed a self-hosted body face.
+
+### 3.1 Metric-matched fallbacks
+
+Every face is paired with a fallback whose metrics are overridden to match it,
+so the `swap` cannot change a line box. `size-adjust` is the ratio of the two
+faces' average advance width measured over a fixed reference string;
+`ascent-override` and `descent-override` are the brand face's `hhea` metrics
+divided by that ratio. All three faces report `USE_TYPO_METRICS` off and carry a
+zero `hhea` line gap, so `hhea` is the correct source and `line-gap-override` is
+`0%` throughout.
+
+| Face | `unitsPerEm` | `hhea` asc / desc | Ref. advance (em) | Local fallback | Ref. advance (em) | `size-adjust` | `ascent-override` | `descent-override` |
+|---|---|---|---|---|---|---|---|---|
+| Rilley | 1000 | 750 / −250 | 20.9550 | Georgia | 25.3955 | 82.51% | 90.89% | 30.30% |
+| Corbert Compact | 1000 | 1225 / −338 | 16.9820 | Arial Bold | 27.2310 | 62.36% | 196.43% | 54.20% |
+| Carla Sans | 1000 | 931 / −329 | 34.3370 | Arial | 25.6270 | 133.99% | 69.48% | 24.55% |
+
+Reference string: `The quick brown fox jumps over the lazy dog 0123456789`.
+
+Corbert Compact's `size-adjust` of 62.36% is not a typo. The face is extremely
+narrow, so the fallback has to be set at 62% of the nominal size for its line
+lengths to match; the ascent override of 196.43% then restores the line box to
+exactly Corbert's. Width is matched in preference to glyph size because it is
+line-wrap changes, not glyph height, that move content.
+
+The declarations live in `frontend/src/styles/fonts.css`, imported by
+`styles/theme.css`:
 
 ```css
-/* frontend/src/styles/globals.css — font faces */
 @font-face {
-  font-family: "Inter";
-  src: url("/fonts/inter-latin-400-normal.woff2") format("woff2");
-  font-weight: 400;
+  font-family: "Corbert Compact";
+  src:
+    url("/fonts/CorbertCompact-Bold.woff2") format("woff2"),
+    url("/fonts/CorbertCompact-Bold.otf") format("opentype");
+  font-weight: 400 700;
   font-style: normal;
   font-display: swap;
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F,
-    U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215;
 }
 
 @font-face {
-  font-family: "Inter Fallback";
-  src: local("Arial");
-  size-adjust: 107%;
-  ascent-override: 90%;
-  descent-override: 22.4%;
-  line-gap-override: 0%;
-}
-
-@font-face {
-  font-family: "Bitter";
-  src: url("/fonts/bitter-latin-700-normal.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F,
-    U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215;
-}
-
-@font-face {
-  font-family: "Bitter Fallback";
-  src: local("Georgia");
-  size-adjust: 100%;
-  ascent-override: 92%;
-  descent-override: 24%;
+  font-family: "Corbert Compact Fallback";
+  src:
+    local("Arial Bold"),
+    local("Helvetica Bold");
+  size-adjust: 62.36%;
+  ascent-override: 196.43%;
+  descent-override: 54.2%;
   line-gap-override: 0%;
 }
 ```
 
-The stacks in `05-DESIGN-SYSTEM.md` §2.1 are amended in implementation to insert
-the matched fallback: `"Inter", "Inter Fallback", -apple-system, …` and
-`"Bitter", "Bitter Fallback", Georgia, …`.
+The matched fallback is inserted into each stack in `05-DESIGN-SYSTEM.md` §2.1
+directly behind its face — `"Corbert Compact", "Corbert Compact Fallback", …`.
 
-`[ASSUMPTION] The override percentages above are computed for Arial and Georgia
-as the local fallbacks. Recompute with `fontkit` if either family changes —
-DP-10.`
+`[ASSUMPTION] The override percentages are computed against Arial and Georgia as
+the local fallbacks. On a host with neither (most Linux), the matched face fails
+to resolve and the stack falls through to an unadjusted system sans. Recompute
+with fontkit if a fallback family changes.`
 
-Preload tags in the root layout:
+### 3.2 Preload
 
 ```tsx
 <link
   rel="preload"
-  href="/fonts/inter-latin-400-normal.woff2"
+  href="/fonts/CorbertCompact-Bold.woff2"
   as="font"
   type="font/woff2"
   crossOrigin="anonymous"
 />
 <link
   rel="preload"
-  href="/fonts/bitter-latin-700-normal.woff2"
+  href="/fonts/Rilley.woff2"
   as="font"
   type="font/woff2"
   crossOrigin="anonymous"

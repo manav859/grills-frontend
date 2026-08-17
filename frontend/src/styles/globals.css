@@ -85,7 +85,7 @@ body {
   font-size: var(--text-h3);
   line-height: var(--text-h3-lh);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-ink);
+  color: var(--color-brand-primary);
   margin-top: var(--space-8);
 }
 

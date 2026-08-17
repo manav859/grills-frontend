@@ -187,19 +187,56 @@ carries the full `description` as its accessible name.
 
 ### 2.1 Families
 
+The client delivered three faces. Matched fallbacks and the loading strategy are
+in `08-PERFORMANCE-SEO-A11Y.md` §3; the stacks below show them in position.
+
 | Token | Stack | Usage | Licence |
 |---|---|---|---|
-| `--font-display` | `"Bitter", Georgia, "Times New Roman", serif` | H1–H3, hero headings, section headings | SIL OFL, self-hosted |
-| `--font-body` | `"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif` | Body copy, UI, navigation, buttons | SIL OFL, self-hosted |
-| `--font-script` | *(none — logo only)* | The cursive wordmark is an SVG asset, never live text | — |
+| `--font-script` | `"Rilley", "Rilley Fallback", Georgia, "Times New Roman", serif` | `--text-display` headings, the hero eyebrow | Client-supplied, self-hosted |
+| `--font-display` | `"Corbert Compact", "Corbert Compact Fallback", "Carla Sans", "Arial Narrow", Arial, sans-serif` | H1–H4, section headings, navigation | Client-supplied, self-hosted |
+| `--font-accent` | `"Carla Sans", "Carla Sans Fallback", Arial, Helvetica, sans-serif` | `--text-overline` only — eyebrows and uppercase labels | Client-supplied, self-hosted |
+| `--font-body` | `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif` | Body copy, UI, forms, buttons | System stack — **no brand face** |
 
-The cursive wordmark from the existing logo is **not** implemented as a webfont.
-It is delivered as SVG (`_global.site.logo`) with a text alternative. Reasons:
-the licence status of the existing script face is unknown (DP-10), script faces
-render poorly below 24px, and a wordmark is a mark, not text.
+Rilley is the script from the logo, so a hero heading set in it and the wordmark
+above it are the same lettering. It is used at `--text-display` and at the hero
+eyebrow's `--text-h3`, and nowhere smaller: script faces stop being legible
+below about 24px, and the eyebrow is deliberately *not* a `Text` overline
+because overlines are uppercase and a script set in capitals is unreadable.
 
-`[ASSUMPTION] Bitter and Inter are placeholders selected for warmth, wide weight
-range, and open licensing. Replace on receipt of brand guidelines — DP-10.`
+The logo itself is still a mark, not live text — it is an image asset with a
+text alternative (§0), and no route renders the wordmark as styled type.
+
+**Two coverage limits, both load-bearing.**
+
+*Corbert Compact ships 97 glyphs.* It has `A–Z`, `a–z`, `0–9`, space, and
+`, - . : ;`. It has no apostrophe, ampersand, question mark, exclamation mark,
+parenthesis, slash, quotation mark, dash, or accented character. Headings that
+contain one — "Bowls, Salads & Wraps", "What's on", "Catering & private events"
+— get that single glyph from the next family in the stack. Carla Sans is placed
+directly behind Corbert for exactly this reason: the substitute then comes from
+another brand face rather than from Arial. The substitution is still visible on
+close inspection. Resolving it properly needs a fuller cut of Corbert from the
+client, or heading copy that avoids those characters. `[NEEDS CLIENT INPUT] —
+DP-23.`
+
+*Carla Sans is unicase.* Its lowercase codepoints are drawn as capitals — the
+`a` and `A` glyphs share a bounding box, and the face reports an x-height of 723
+against a cap-height of 722. It is a display face taken from the badge lockup,
+not a text face. Setting body copy in it would render every menu description in
+capitals, so it is confined to `--text-overline`, which is uppercase already.
+
+**There is therefore no brand body face.** Of the four fonts delivered, three
+are display faces and the fourth is Myriad Pro, whose Adobe licence forbids
+self-hosting. `--font-body` consequently stays on a system stack. This is the
+one part of the brand rollout that is not complete, and it cannot be closed
+from the assets in hand: the client must either supply a licensed text face that
+pairs with Corbert, or approve an open-licence substitute. `[NEEDS CLIENT
+INPUT] — DP-24.`
+
+Each face ships a single static weight, declared as `font-weight: 400 700` so
+that a `600` or `700` request resolves to the real file rather than a
+synthetically emboldened one. §2.2's four weights are therefore live only on
+`--font-body`; on the three brand faces they all resolve to the one cut.
 
 ### 2.2 Weights
 
@@ -217,17 +254,17 @@ recorded as an ADR.
 
 | Token | Size | Line height | Letter spacing | Weight | Family | Usage |
 |---|---|---|---|---|---|---|
-| `--text-display` | `2.5rem` / 40px | `1.1` / 44px | `-0.02em` | 700 | display | Hero heading |
+| `--text-display` | `2.5rem` / 40px | `1.1` / 44px | `-0.02em` | 700 | script | Hero heading |
 | `--text-h1` | `2rem` / 32px | `1.15` / 36.8px | `-0.015em` | 700 | display | Page H1 |
 | `--text-h2` | `1.625rem` / 26px | `1.2` / 31.2px | `-0.01em` | 700 | display | Section heading |
 | `--text-h3` | `1.25rem` / 20px | `1.3` / 26px | `-0.005em` | 600 | display | Sub-section, card title |
-| `--text-h4` | `1.0625rem` / 17px | `1.35` / 22.95px | `0` | 600 | body | Menu item name |
+| `--text-h4` | `1.0625rem` / 17px | `1.35` / 22.95px | `0` | 600 | display | Menu item name |
 | `--text-body-lg` | `1.125rem` / 18px | `1.6` / 28.8px | `0` | 400 | body | Intro paragraphs |
 | `--text-body` | `1rem` / 16px | `1.6` / 25.6px | `0` | 400 | body | Default body copy |
 | `--text-body-sm` | `0.9375rem` / 15px | `1.55` / 23.25px | `0` | 400 | body | Menu descriptions, captions |
-| `--text-label` | `0.875rem` / 14px | `1.4` / 19.6px | `0.01em` | 500 | body | Form labels, nav |
+| `--text-label` | `0.875rem` / 14px | `1.4` / 19.6px | `0.01em` | 500 | body (labels) / display (nav) | Form labels, nav |
 | `--text-caption` | `0.8125rem` / 13px | `1.45` / 18.85px | `0.01em` | 400 | body | Metadata, legends |
-| `--text-overline` | `0.75rem` / 12px | `1.3` / 15.6px | `0.08em` | 600 | body | Eyebrows, uppercase labels |
+| `--text-overline` | `0.75rem` / 12px | `1.3` / 15.6px | `0.08em` | 600 | accent | Eyebrows, uppercase labels |
 
 Body copy never drops below 15px. 13px is reserved for non-essential metadata
 that is duplicated elsewhere in accessible form.
@@ -497,10 +534,14 @@ prohibited except in the reduced-motion and print blocks.
   --hero-overlay-alpha: 0.6;
   --color-hero-overlay: rgba(17, 17, 17, var(--hero-overlay-alpha));
 
-  /* Typography — families */
-  --font-display: "Bitter", Georgia, "Times New Roman", serif;
-  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+  /* Typography — families. Faces declared in styles/fonts.css. */
+  --font-script: "Rilley", "Rilley Fallback", Georgia, "Times New Roman", serif;
+  --font-display: "Corbert Compact", "Corbert Compact Fallback", "Carla Sans",
+    "Arial Narrow", Arial, sans-serif;
+  --font-accent: "Carla Sans", "Carla Sans Fallback", "Arial", Helvetica,
     sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
 
   /* Typography — weights */
   --font-weight-regular: 400;
@@ -700,7 +741,9 @@ Tailwind CSS 4 reads its theme from CSS. `frontend/src/styles/theme.css`:
   --color-border-inverse: var(--color-border-inverse);
   --color-focus: var(--color-focus-ring);
 
+  --font-script: var(--font-script);
   --font-display: var(--font-display);
+  --font-accent: var(--font-accent);
   --font-body: var(--font-body);
 
   --text-display: var(--text-display);

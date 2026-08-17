@@ -64,10 +64,14 @@ export function Hero({ block, isPrimary = false }: HeroProps): ReactNode {
           className="relative flex flex-col items-start gap-5 py-16"
           style={{ maxWidth: 'var(--measure-narrow)' }}
         >
+          {/* The hero eyebrow is the one place the script face is set as a
+              phrase rather than as a heading (05-DESIGN-SYSTEM.md §2.1). It is
+              deliberately not a Text overline: overline is uppercase, and a
+              script face set in capitals is unreadable. */}
           {hasEyebrow ? (
-            <Text as="span" size="overline" tone="inverse" weight="semibold">
+            <span className="font-script text-h3 text-ink-inverse">
               {block.eyebrow}
-            </Text>
+            </span>
           ) : null}
 
           <Heading level={isPrimary ? 1 : 2} visualLevel="display" id={headingId}>

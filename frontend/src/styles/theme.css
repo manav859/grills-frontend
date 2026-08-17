@@ -7,6 +7,7 @@
 
 @import 'tailwindcss';
 @import './tokens.css';
+@import './fonts.css';
 
 @theme inline {
   --color-brand: var(--color-brand-primary);
@@ -42,7 +43,9 @@
   --color-border-inverse: var(--color-border-inverse);
   --color-focus: var(--color-focus-ring);
 
+  --font-script: var(--font-script);
   --font-display: var(--font-display);
+  --font-accent: var(--font-accent);
   --font-body: var(--font-body);
 
   --text-display: var(--text-display);

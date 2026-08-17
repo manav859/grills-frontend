@@ -188,7 +188,7 @@ export function MobileNav({ global }: MobileNavProps): ReactNode {
                         href={item.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="py-3 font-body text-body-lg font-semibold text-ink"
+                        className="py-3 font-display text-body-lg font-semibold uppercase text-ink"
                       >
                         {item.label}
                       </a>
@@ -196,7 +196,7 @@ export function MobileNav({ global }: MobileNavProps): ReactNode {
                       <Link
                         key={item.href}
                         href={item.href}
-                        className="py-3 font-body text-body-lg font-semibold text-ink"
+                        className="py-3 font-display text-body-lg font-semibold uppercase text-ink"
                         aria-current={pathname === item.href ? 'page' : undefined}
                       >
                         {item.label}

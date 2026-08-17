@@ -363,12 +363,19 @@ lint-staged working directory all need configuring for that split rather than
 the single-root default. Until then `lint`, `format`, and `typecheck` run
 manually and in CI; the missing piece is only the pre-commit convenience.
 
-**T-FE-08 — self-hosted fonts (already tracked).** The scaffold ships no
-`.woff2` files under `public/fonts/`, so the `--font-body` / `--font-display`
-stacks fall back to their system fonts (`05-DESIGN-SYSTEM.md` §2.1). T-FE-08
-delivers subsetting, self-hosting, `@font-face` with metric overrides, and
-preloads per the font-loading strategy in `08-PERFORMANCE-SEO-A11Y.md`. No new
-task; the fallback is correct and unremarkable until then.
+**T-FE-08 — self-hosted fonts. Done 2026-08-17.** Rilley, Corbert Compact, and
+Carla Sans are self-hosted as `.woff2` under `public/fonts/` with metric-matched
+fallbacks and preloads, per `08-PERFORMANCE-SEO-A11Y.md` §3. Subsetting was
+dropped from the task rather than done: each face is 8–35 KB and none has
+coverage to spare, so a subset would have traded real risk for about a
+kilobyte.
+
+Two items fell out of the work and are **not** closed by it. Corbert Compact
+ships 97 glyphs and cannot set a heading containing an apostrophe or ampersand
+without a substituted glyph (DP-23). And none of the delivered faces is a text
+face — Carla Sans is unicase — so `--font-body` is still a system stack and the
+site has no brand body voice (DP-24). Both are client-side decisions; neither
+is more frontend work.
 
 **T-FE-04 / T-FE-05 — Zod contract module (already tracked).** `api.ts` is the
 hand-written type source; the paired `api.schema.ts` with the exactness
@@ -471,7 +478,7 @@ for ordering.
 | R-02 | Decisions Pending remain unanswered, blocking integrations and schema | **High** | **Medium** | 6 | All 22 are tabulated in `00-PROJECT-BRIEF.md` §8 with owners. Reviewed at every client checkpoint. Items unanswered by the Phase 4 entry gate default to "not built in Phase 1" and are moved to the Phase 2 backlog. | Project lead |
 | R-03 | SQLite/MySQL divergence produces staging-only defects | **Medium** | **High** | 6 | Full analysis in `10-ENVIRONMENTS-DEPLOYMENT.md` §10. Raw SQL is banned and enforced by PHPCS. Staging exists from Phase 0. Definition of Done requires staging verification. Escalation trigger: three or more divergence defects in one phase forces reconsideration of local MySQL. | Backend dev |
 | R-04 | PHP output and TypeScript interfaces drift; a field renamed in PHP silently becomes `undefined` in the UI | **Medium** | **High** | 6 | Types are hand-maintained by decision (ADR-0003), so this risk is structural. Contract tests with `.strict()` Zod schemas run in CI on both repositories against staging and fail the build on any extra or missing key. Backend-before-frontend deploy ordering is mandated. A field rename requires paired PRs. | Both devs |
-| R-05 | Brand assets (DP-10) arrive late or contradict the provisional tokens | **Medium** | **Medium** | 4 | Every value is a token; no hard-coded colours or sizes exist anywhere. A palette change is a one-file edit plus a contrast test re-run. Type-scale changes are similarly centralised. Budget 1 developer-day for a full token sweep. | Design |
+| ~~R-05~~ | ~~Brand assets (DP-10) arrive late or contradict the provisional tokens~~ | — | — | — | **Closed 2026-08-17.** The mitigation held: the palette swap was a one-file token edit plus a contrast re-run, and no hard-coded colour had to be hunted down. Two token names did have to be retired (`--color-brand-ember`, `--color-brand-oak`) because the real brand has no such hues — a case the mitigation had not anticipated, and worth carrying into future token design. | Design |
 | ~~R-06~~ | ~~The real menu needs size-tiered pricing, which the single `price` field cannot express~~ | — | — | — | **Retired 2026-07-22.** Price is modelled as a repeater (`_gotg_price_variants`) from the outset — `03-CONTENT-MODEL.md` §3.4. A size-tiered menu now requires no schema, API, or component change. | — |
 | R-07 | DNS cutover breaks email because MX or SPF records are altered | **Low** | **High** | 3 | `10-ENVIRONMENTS-DEPLOYMENT.md` §9.5. Every existing record is recorded before any change; only the A and `www` CNAME records are touched. Email delivery is tested immediately after cutover. | DevOps |
 | R-08 | Squarespace is cancelled before the new site is confirmed stable, removing the rollback target | **Low** | **High** | 3 | Cancellation is task T-DO-19 in Phase 8, gated on 14 days of clean monitoring and explicitly no earlier than T+7 days. Stated in the runbook as a hard rule. | Project lead |

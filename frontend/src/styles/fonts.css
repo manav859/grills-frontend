@@ -1,0 +1,105 @@
+/*
+ * Self-hosted brand faces — 05-DESIGN-SYSTEM.md §2.1.
+ *
+ * Three faces were delivered by the client and all three are self-hosted here
+ * as woff2, with the original .ttf/.otf kept beside them in public/fonts as the
+ * source of record. Myriad Pro was also delivered and is deliberately absent:
+ * its Adobe licence does not permit web embedding.
+ *
+ * Each face is a single static weight. The @font-face weight is declared as the
+ * range `400 700` so that a `font-weight: 600` or `700` request resolves to the
+ * one real file instead of triggering synthetic emboldening — the faces are
+ * already drawn at their intended weight.
+ *
+ * Every face is paired with a metric-matched fallback declared immediately
+ * below it. The `size-adjust` figure is the ratio of the two faces' average
+ * advance width over a reference string; `ascent-override` and
+ * `descent-override` are the brand face's hhea metrics divided by that ratio,
+ * so the fallback occupies an identical line box and the swap cannot move
+ * anything. Figures are recorded in 08-PERFORMANCE-SEO-A11Y.md §4.
+ */
+
+/* --------------------------------------------------------------------------
+ * Rilley — the script from the logo. Display headings and hero eyebrows.
+ * 289 glyphs; Latin-1 plus smart punctuation. No coverage gaps in use.
+ * -------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Rilley';
+  src:
+    url('/fonts/Rilley.woff2') format('woff2'),
+    url('/fonts/Rilley.ttf') format('truetype');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Rilley Fallback';
+  src:
+    local('Georgia'),
+    local('Times New Roman');
+  size-adjust: 82.51%;
+  ascent-override: 90.89%;
+  descent-override: 30.3%;
+  line-gap-override: 0%;
+}
+
+/* --------------------------------------------------------------------------
+ * Corbert Compact Bold — the condensed face. Section headings and navigation.
+ *
+ * 97 glyphs: A-Z, a-z, 0-9, space, and `,` `-` `.` `:` `;` only. It has no
+ * apostrophe, ampersand, question mark, parenthesis, slash, or accent. Those
+ * characters fall through per-glyph to the next family in --font-display, which
+ * is why Carla Sans sits directly behind it: a substituted glyph then comes
+ * from another brand face rather than from Times New Roman. Tracked in
+ * 05-DESIGN-SYSTEM.md §2.1.
+ * -------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Corbert Compact';
+  src:
+    url('/fonts/CorbertCompact-Bold.woff2') format('woff2'),
+    url('/fonts/CorbertCompact-Bold.otf') format('opentype');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Corbert Compact Fallback';
+  src:
+    local('Arial Bold'),
+    local('Helvetica Bold');
+  size-adjust: 62.36%;
+  ascent-override: 196.43%;
+  descent-override: 54.2%;
+  line-gap-override: 0%;
+}
+
+/* --------------------------------------------------------------------------
+ * Carla Sans — the caps face from the badge lockup. Overlines and eyebrows.
+ *
+ * Unicase: its lowercase codepoints are drawn as capitals (the `a` and `A`
+ * glyphs share a bounding box, and x-height equals cap-height). It is a display
+ * face, not a text face, and is never applied to body copy. Missing the en and
+ * em dash, which fall through to the metric-matched fallback.
+ * -------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Carla Sans';
+  src:
+    url('/fonts/CarlaSansRegular.woff2') format('woff2'),
+    url('/fonts/CarlaSansRegular.ttf') format('truetype');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Carla Sans Fallback';
+  src:
+    local('Arial'),
+    local('Helvetica');
+  size-adjust: 133.99%;
+  ascent-override: 69.48%;
+  descent-override: 24.55%;
+  line-gap-override: 0%;
+}

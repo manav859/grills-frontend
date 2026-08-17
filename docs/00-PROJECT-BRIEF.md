@@ -148,16 +148,16 @@ the party who must answer, not the party who chases the answer.
 
 | ID | Question | Blocks | Owner | Impact if unanswered |
 |---|---|---|---|---|
-| DP-01 | Exact street address and mailing address | LocalBusiness schema, Contact page, Google Business Profile alignment | Client | Schema incomplete; local SEO degraded |
-| DP-02 | Registered legal business name | Schema `legalName`, footer copyright | Client | Placeholder in footer |
-| DP-03 | Is the restaurant open to non-golfers without course access? | Home copy, About positioning, audience rank 2 | Client | Positioning copy cannot be written |
-| DP-04 | Does the restaurant take reservations at all? If so, by phone only or via a platform? | `09-INTEGRATIONS.md` reservations section, primary CTA hierarchy | Client | Reservation CTA cannot ship |
+| ~~DP-01~~ | ~~Exact street address and mailing address~~ | — | — | **Resolved 2026-08-17.** 5031 Alamo St, Simi Valley, CA 93063, at Simi Hills Golf Course. |
+| DP-02 | Registered legal business name | Schema `legalName`, footer copyright | Client | **Partially answered 2026-08-17** — the trading name is "Grill on the Green" and the footer now uses it. Whether that is the *registered* entity (LLC, Inc., or a DBA of the course operator) is still open. Kept open. |
+| ~~DP-03~~ | ~~Is the restaurant open to non-golfers without course access?~~ | — | — | **Resolved 2026-08-17.** Open to everyone, not only golfers. Home and About copy revised accordingly. |
+| ~~DP-04~~ | ~~Does the restaurant take reservations at all? If so, by phone only or via a platform?~~ | — | — | **Resolved 2026-08-17.** Phone only, no booking platform. The reservation CTA is a `tel:` link. |
 | DP-05 | Is catering an active, staffed service line today? | Catering page existence, journey J5 | Client | Catering page deferred to Phase 2 |
 | DP-06 | Private-event / banquet capacity and minimums | Private events page content | Client | Page cannot be written |
 | DP-07 | Are gift cards sold, and through what system? | `09-INTEGRATIONS.md` gift cards | Client | Gift card CTA omitted |
 | DP-08 | Does an online ordering provider already exist (Toast, Square, ChowNow)? | `09-INTEGRATIONS.md` ordering | Client | Ordering CTA omitted |
-| DP-09 | Holiday and seasonal hours variance from Mon–Sun 6am–9pm | `OpeningHoursSpecification` schema, Site Settings model | Client | Schema asserts hours that may be wrong |
-| DP-10 | Official brand colours, typefaces, and logo source files (SVG/AI) | `05-DESIGN-SYSTEM.md` token finalisation | Client | Tokens remain derived-from-logo assumptions |
+| DP-09 | Holiday and seasonal hours variance from Mon–Sun 6am–9pm | `OpeningHoursSpecification` schema, Site Settings model | Client | **Partially answered 2026-08-17** — daily 6am–9pm confirmed; closed Christmas Day and New Year's Day. Both seeded as exceptions and marked provisional. Whether any other holiday differs is still open. Kept open. |
+| ~~DP-10~~ | ~~Official brand colours, typefaces, and logo source files (SVG/AI)~~ | — | — | **Resolved 2026-08-17.** Palette and three typefaces applied; see `05-DESIGN-SYSTEM.md` §0. Logos were delivered as PNG, not vector — see DP-25. |
 | DP-11 | Rights and source files for existing Squarespace photography | Content migration, image pipeline | Client | Reshoot cost enters budget |
 | DP-12 | Is a professional photo shoot budgeted? | Home hero, menu imagery quality | Client | Launch with stock or existing imagery |
 | DP-13 | Who owns the domain, and at which registrar? | DNS cutover runbook | Client | Cutover cannot be scheduled |
@@ -169,7 +169,10 @@ the party who must answer, not the party who chases the answer.
 | DP-19 | Does a newsletter list exist, and on what platform? | Newsletter integration | Client | Capture deferred |
 | DP-20 | Confirmed live-music booking lead time (how far ahead are acts known?) | Events publishing workflow, revalidation cadence | Client | Events cache policy is a guess |
 | DP-21 | Full menu with current prices in a structured form (spreadsheet or PDF) | Content entry, launch date | Client | Content entry cannot start |
-| DP-22 | Allergen/dietary claims policy — is the client willing to publish them? | `gotg_dietary` taxonomy usability, liability copy | Client | Dietary tags ship empty |
+| ~~DP-22~~ | ~~Allergen/dietary claims policy — is the client willing to publish them?~~ | — | — | **Resolved 2026-08-17.** Two tags only: Vegetarian and Gluten-Free. The taxonomy already held exactly these; no change was needed. |
+| DP-23 | A fuller cut of Corbert Compact, or heading copy that avoids the glyphs it lacks | Section headings and navigation rendering in one face | Client | The delivered cut has 97 glyphs and no apostrophe, ampersand, or question mark. Headings containing one show a substituted glyph from Carla Sans |
+| DP-24 | A licensed body text face, or approval of an open-licence substitute | `--font-body`, all body copy and forms | Client | All four delivered faces are display faces (or Adobe-licensed), so body copy runs on a system stack and the site has no brand body voice |
+| DP-25 | Vector logo source (SVG, AI, or EPS) | Logo crispness at large sizes, favicon fidelity, print | Client | Only PNG was delivered. The header lockup tops out at 1018×444, which is adequate for its rendered size but leaves no headroom |
 
 ---
 

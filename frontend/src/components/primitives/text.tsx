@@ -5,6 +5,11 @@ import { cn } from '@/lib/cn';
 /*
  * Text — 06-COMPONENT-SPEC.md §Text. `tone="subtle"` is intentionally absent:
  * --color-ink-subtle is reserved for input placeholders.
+ *
+ * `overline` is the one size that leaves --font-body: it is already uppercase,
+ * which is the only setting Carla Sans can render (the face is unicase — see
+ * 05-DESIGN-SYSTEM.md §2.1). Every other size is body text and stays on the
+ * body stack.
  */
 
 export interface TextProps {
@@ -17,11 +22,11 @@ export interface TextProps {
 }
 
 const SIZE = {
-  'body-lg': 'text-body-lg',
-  body: 'text-body',
-  'body-sm': 'text-body-sm',
-  caption: 'text-caption',
-  overline: 'text-overline uppercase',
+  'body-lg': 'font-body text-body-lg',
+  body: 'font-body text-body',
+  'body-sm': 'font-body text-body-sm',
+  caption: 'font-body text-caption',
+  overline: 'font-accent text-overline uppercase',
 } as const;
 
 const TONE = {
@@ -49,7 +54,7 @@ export function Text({
   return (
     <Tag
       id={id}
-      className={cn('font-body', SIZE[size], TONE[tone], WEIGHT[weight])}
+      className={cn(SIZE[size], TONE[tone], WEIGHT[weight])}
     >
       {children}
     </Tag>

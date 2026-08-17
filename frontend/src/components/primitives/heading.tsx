@@ -6,6 +6,11 @@ import { cn } from '@/lib/cn';
  * Heading — 06-COMPONENT-SPEC.md §Heading.
  * `level` sets the semantic tag; `visualLevel` sets the type token, so a
  * visually large heading can still sit at the right depth in the outline.
+ *
+ * Family follows the visual level (05-DESIGN-SYSTEM.md §2.1): `display` is the
+ * Rilley script, everything below it is Corbert Compact. Colour is brand green
+ * rather than ink, per §1.2 — callers rendering onto a dark surface wrap the
+ * children in a `text-ink-inverse` span.
  */
 
 export interface HeadingProps {
@@ -32,6 +37,14 @@ const VISUAL_WEIGHT = {
   h4: 'font-semibold',
 } as const;
 
+const VISUAL_FAMILY = {
+  display: 'font-script',
+  h1: 'font-display',
+  h2: 'font-display',
+  h3: 'font-display',
+  h4: 'font-display',
+} as const;
+
 const DEFAULT_VISUAL = {
   1: 'h1',
   2: 'h2',
@@ -47,7 +60,8 @@ export function Heading({
 }: HeadingProps): ReactNode {
   const visual = visualLevel ?? DEFAULT_VISUAL[level];
   const className = cn(
-    'font-display text-ink text-balance',
+    'text-brand text-balance',
+    VISUAL_FAMILY[visual],
     VISUAL_SIZE[visual],
     VISUAL_WEIGHT[visual],
   );

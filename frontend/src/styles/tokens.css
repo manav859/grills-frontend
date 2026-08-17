@@ -57,10 +57,22 @@
   --hero-overlay-alpha: 0.6;
   --color-hero-overlay: rgba(17, 17, 17, var(--hero-overlay-alpha));
 
-  /* Typography — families */
-  --font-display: 'Bitter', Georgia, 'Times New Roman', serif;
+  /* Typography — families. Faces are declared in fonts.css; 05-DESIGN-SYSTEM.md
+     §2.1 gives the role of each and the coverage caveats.
+
+     --font-body is a system stack, not a brand face. The three delivered fonts
+     are all display faces — Carla Sans is unicase and would set every menu
+     description in capitals — so no body text face exists yet. [NEEDS CLIENT
+     INPUT] — DP-24. */
+  --font-script: 'Rilley', 'Rilley Fallback', Georgia, 'Times New Roman', serif;
+  --font-display:
+    'Corbert Compact', 'Corbert Compact Fallback', 'Carla Sans',
+    'Arial Narrow', Arial, sans-serif;
+  --font-accent:
+    'Carla Sans', 'Carla Sans Fallback', 'Arial', Helvetica, sans-serif;
   --font-body:
-    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
 
   /* Typography — weights */
   --font-weight-regular: 400;
