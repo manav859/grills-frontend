@@ -1,7 +1,7 @@
 # 05 — Design System
 
-Status: **Living until brand assets arrive, then frozen for Phase 1**
-Last reviewed: 2026-07-22
+Status: **Colour and type frozen for Phase 1 (brand assets received)**
+Last reviewed: 2026-08-17
 
 ---
 
@@ -17,7 +17,7 @@ section constrains interpretation; it is not decoration.
 | One unmistakable primary CTA per view | sweetgreen | Exactly one `Button variant="primary"` per viewport band. Secondary actions use `variant="secondary"` or `variant="ghost"`. |
 | Restrained motion | sweetgreen | Entrance animation is opacity and 8px translate only. No parallax. No scroll-jacking. Nothing animates longer than 400ms. |
 | Restaurant-industry conventions | woodranch | Menu as a single scannable page. Hours and phone permanently reachable. Events as dated cards. Catering and private events as first-class destinations (Phase 2). |
-| Warm, smoke-and-oak palette | existing logo | Red primary against an off-white surface, with a charcoal ink and an oak-toned accent. Not a cool or clinical palette. |
+| Clubhouse green on cream | brand guidelines | Deep green primary against a cream surface, with sand as the second surface and the flag red reserved as an accent. Warm, not clinical; green carries the weight, red is a highlight. |
 
 Divergences from sweetgreen, stated so they are not treated as oversights:
 
@@ -27,11 +27,22 @@ Divergences from sweetgreen, stated so they are not treated as oversights:
 | Higher contrast floor than sweetgreen uses | Outdoor use. All body text meets 7:1 where achievable, never below 4.5:1. |
 | No ingredient-illustration system | No illustration budget. Photography only. |
 
-`[ASSUMPTION] Existing brand assets are a red/white/off-white logo with a cursive
-wordmark. All colour and type tokens below are derived from that description.
-[NEEDS CLIENT INPUT] — DP-10: official brand guidelines, colour values, licensed
-typefaces, and vector logo source files. Every token in §1 and §2 is provisional
-until those arrive.`
+**DP-10 is closed (2026-08-17).** The client delivered brand guidelines, the
+logo set, and three typefaces. §1 and §2 are no longer provisional: the five
+palette values in §1.1 and the three families in §2.1 are the brand as
+delivered, and everything else in those sections is derived from them.
+
+Two notes carried forward from the handover:
+
+- The delivered PNG lockups sample as green `#1E4538` and red `#CC3D3B`, a hair
+  off the `#1E4338` / `#DE2A33` in the branding deck. The deck values are
+  authoritative here; the delta is an export colour-profile artefact and is
+  invisible at these deltas (ΔE < 2 for the green). Raised with the client for
+  the record, not blocking.
+- `[ASSUMPTION] The three delivered typefaces (Rilley, Corbert Compact, Carla
+  Sans) are self-hosted on the assumption that the client's licence covers web
+  embedding. Myriad Pro was excluded — its Adobe licence does not permit
+  self-hosting. Licence certificates are [NEEDS CLIENT INPUT].`
 
 ---
 
@@ -39,67 +50,117 @@ until those arrive.`
 
 ### 1.1 Brand and surface
 
-Contrast ratios are computed against `--color-surface` (`#FAF8F4`) unless the
+The palette has exactly five given values. Everything else in §1 is derived
+from them, and no sixth hue may be introduced without an ADR.
+
+| Given | Value | Role |
+|---|---|---|
+| Brand green | `#1E4338` | Headings, primary text, dark surfaces, primary CTA |
+| Brand red | `#DE2A33` | Accent only — logo, large highlights |
+| Cream | `#F9F8F2` | Primary page background |
+| Sand | `#EAE0DA` | Alternating sections, cards |
+| Ink | `#111111` | Near-black body text |
+
+Contrast ratios are computed against `--color-surface` (`#F9F8F2`) unless the
 Usage column states otherwise. AA requires 4.5:1 for normal text, 3:1 for large
 text (≥24px, or ≥18.66px bold) and for UI component boundaries.
 
 | Token | Value | Usage | Contrast |
 |---|---|---|---|
-| `--color-brand-primary` | `#B02A20` | Primary button background, active nav underline, brand accents | 6.42:1 on surface — passes AA for normal text |
-| `--color-brand-primary-hover` | `#8F211A` | Primary button hover | 8.79:1 — passes AAA |
-| `--color-brand-primary-active` | `#74190F` | Primary button pressed | 11.2:1 — passes AAA |
-| `--color-brand-primary-subtle` | `#F7E7E5` | Tinted backgrounds behind brand content | 1.09:1 — background only, never text |
-| `--color-brand-ember` | `#D9741F` | Accent for dietary "amber", spice indicators, event badges | 3.09:1 — large text and UI boundaries only |
-| `--color-brand-oak` | `#8A6A4B` | Warm secondary accent, borders on image cards | 4.02:1 — large text and boundaries only |
-| `--color-surface` | `#FAF8F4` | Page background | — |
-| `--color-surface-raised` | `#FFFFFF` | Cards, panels, sticky header | 1.03:1 vs surface — sufficient with a border |
-| `--color-surface-sunken` | `#F0ECE4` | Alternating section bands, input backgrounds | 1.10:1 vs surface |
-| `--color-surface-inverse` | `#1C1B19` | Footer, hero overlay base, dark CTA bands | — |
+| `--color-brand-primary` | `#1E4338` | Primary button background, active nav underline, headings, brand rules | 10.31:1 on surface — AAA |
+| `--color-brand-primary-hover` | `#19372E` | Primary button hover | 12.13:1 vs `--color-ink-inverse` — AAA |
+| `--color-brand-primary-active` | `#142C25` | Primary button pressed | 13.93:1 vs `--color-ink-inverse` — AAA |
+| `--color-brand-primary-subtle` | `#DFE2DC` | Tinted backgrounds behind brand content | 1.23:1 vs surface — background only; brand green on it is 8.38:1 |
+| `--color-brand-accent` | `#DE2A33` | **Accent only.** Logo, large display accents, decorative rules, the spice glyph | 4.40:1 on surface — see the prohibition below |
+| `--color-brand-accent-subtle` | `#F6E3DF` | Tinted background behind accent content | Background only; brand green on it is 8.86:1 |
+| `--color-surface` | `#F9F8F2` | Page background | — |
+| `--color-surface-raised` | `#FFFFFF` | Cards, panels, sticky header | 1.06:1 vs surface — sufficient with a border |
+| `--color-surface-sunken` | `#EAE0DA` | Alternating section bands, input backgrounds | 1.22:1 vs surface |
+| `--color-surface-inverse` | `#1E4338` | Footer, dark CTA bands | — |
+
+**The accent-red prohibition.** `--color-brand-accent` reaches 4.40:1 on cream
+and 3.61:1 on sand. Both clear the 3:1 large-text and non-text floor; neither
+clears the 4.5:1 normal-text floor. It is therefore permitted for the logo,
+display-size type (≥24px, or ≥18.66px bold), icons and rules, and prohibited
+for body copy, labels, captions, links, and form errors. Those use
+`--color-brand-primary` or `--color-ink`. Reversed is no better — cream on red
+is the same 4.40:1 — so there is no red button, in any variant, at any size.
+Against brand green red measures 2.34:1 and is decoration only, never a glyph
+that carries meaning.
+
+`--color-surface-inverse` is brand green rather than a near-black. The hero and
+modal scrims are not: they stay on ink (§1.4), because green is too light to
+darken a photograph to an accessible contrast.
 
 ### 1.2 Ink (text)
 
-| Token | Value | Usage | Contrast on `--color-surface` | Contrast on `--color-surface-inverse` |
-|---|---|---|---|---|
-| `--color-ink` | `#1C1B19` | Body copy, headings | 16.1:1 — AAA | — |
-| `--color-ink-muted` | `#57534E` | Secondary copy, captions, metadata | 7.51:1 — AAA | — |
-| `--color-ink-subtle` | `#78716C` | Placeholder text, disabled labels | 4.83:1 — AA | — |
-| `--color-ink-inverse` | `#FAF8F4` | Text on `--color-surface-inverse` and on brand-primary | — | 16.1:1 — AAA |
-| `--color-ink-inverse-muted` | `#D6D3D1` | Secondary text on dark | — | 11.4:1 — AAA |
+| Token | Value | Usage | On `--color-surface` | On `--color-surface-sunken` | On `--color-surface-inverse` |
+|---|---|---|---|---|---|
+| `--color-ink` | `#111111` | Body copy | 17.75:1 — AAA | 14.54:1 — AAA | — |
+| `--color-ink-muted` | `#3E4743` | Secondary copy, captions, metadata | 9.02:1 — AAA | 7.39:1 — AAA | — |
+| `--color-ink-subtle` | `#59615D` | Placeholder text, disabled labels | 5.99:1 — AA | 4.91:1 — AA | — |
+| `--color-ink-inverse` | `#F9F8F2` | Text on `--color-surface-inverse` and on brand-primary | — | — | 10.31:1 — AAA |
+| `--color-ink-inverse-muted` | `#BCC5BE` | Secondary text on dark | — | — | 6.20:1 — AA |
 
-`--color-ink-subtle` at 4.83:1 passes AA but is prohibited for any text carrying
-meaning. It is permitted only for placeholder text inside inputs that also carry
-a persistent visible label.
+`--color-ink-subtle` is checked against sand as well as cream because inputs sit
+on `--color-surface-sunken`. It passes AA on both, but is still prohibited for
+any text carrying meaning: it is permitted only for placeholder text inside
+inputs that also carry a persistent visible label.
+
+Headings use `--color-brand-primary` (green, 10.31:1) rather than `--color-ink`;
+body copy uses ink. This is the split the branding deck specifies.
 
 ### 1.3 Semantic and state
 
-| Token | Value | Usage | Contrast on surface |
-|---|---|---|---|
-| `--color-success` | `#2F6F4E` | Form success, "Open now" indicator | 5.71:1 — AA |
-| `--color-success-subtle` | `#E4F0E9` | Success message background | Background only |
-| `--color-warning` | `#8A5A00` | Limited availability, closing-soon notice | 5.94:1 — AA |
-| `--color-warning-subtle` | `#FBF0DA` | Warning background | Background only |
-| `--color-danger` | `#A32118` | Form errors, "Closed" indicator, allergen badge | 7.24:1 — AAA |
-| `--color-danger-subtle` | `#FBE7E5` | Error message background | Background only |
-| `--color-info` | `#1F5E82` | Neutral informational notices | 6.13:1 — AA |
-| `--color-info-subtle` | `#E3EEF4` | Info background | Background only |
+| Token | Value | Usage | On surface | On sunken | On its own `-subtle` |
+|---|---|---|---|---|---|
+| `--color-success` | `#1F6B4A` | Form success, "Open now" indicator | 6.05:1 — AA | 4.96:1 — AA | 5.10:1 — AA |
+| `--color-success-subtle` | `#DFE7DE` | Success message background | Background only | — | ink on it: 14.95:1 |
+| `--color-warning` | `#8A5A00` | Limited availability, closing-soon notice | 5.57:1 — AA | 4.56:1 — AA | 4.72:1 — AA |
+| `--color-warning-subtle` | `#ECE5D5` | Warning background | Background only | — | ink on it: 15.05:1 |
+| `--color-danger` | `#96201A` | Form errors, "Closed" indicator, allergen badge | 7.84:1 — AAA | 6.42:1 — AAA | 5.73:1 — AA |
+| `--color-danger-subtle` | `#EFDED8` | Error message background | Background only | — | ink on it: 14.49:1 |
+| `--color-info` | `#1F5E82` | Neutral informational notices | 6.62:1 — AAA | 5.42:1 — AA | 5.56:1 — AA |
+| `--color-info-subtle` | `#DFE6E5` | Info background | Background only | — | ink on it: 14.92:1 |
 
-`--color-danger` is deliberately distinct from `--color-brand-primary`. If error
-red and brand red were the same value, an error message would read as branding.
+`--color-danger` is deliberately **not** `--color-brand-accent`. Two reasons, and
+both are binding: brand red at 4.40:1 cannot carry an error message at label
+size, and if error red and brand red were the same value an error would read as
+branding. `#96201A` is a darker, less saturated oxblood — recognisably an error
+colour, unmistakably not the flag red.
+
+`--color-success` is likewise not `--color-brand-primary`. It is lighter and
+more saturated so that an "Open now" pill does not read as a brand chip.
 
 ### 1.4 Border and overlay
 
 | Token | Value | Usage | Contrast on surface |
 |---|---|---|---|
-| `--color-border` | `#E0DAD0` | Default card and input borders | 1.32:1 — decorative only |
-| `--color-border-strong` | `#B8AFA1` | Input borders, table rules, focus-adjacent boundaries | 2.28:1 |
-| `--color-border-interactive` | `#57534E` | Borders that convey component boundaries (checkbox, radio) | 7.51:1 — passes AA non-text 3:1 |
-| `--color-focus-ring` | `#1F5E82` | Focus indicator | 6.13:1 against surface, 4.10:1 against `--color-brand-primary` — passes AA non-text on both |
-| `--color-overlay-scrim` | `rgba(28, 27, 25, 0.60)` | Mobile nav backdrop, modal scrim | — |
-| `--color-hero-overlay` | `rgba(28, 27, 25, var(--hero-overlay-alpha))` | Hero image darkening; alpha set per-block from the CMS `overlay` field | Must yield ≥4.5:1 for hero text — validated at build |
+| `--color-border` | `#D2CDC7` | Default card and input borders | 1.55:1 — decorative only |
+| `--color-border-strong` | `#A5ABA3` | Input borders, table rules, focus-adjacent boundaries | 2.28:1 |
+| `--color-border-interactive` | `#6C7F76` | Borders that convey component boundaries (checkbox, radio) | 4.00:1 on cream, 3.28:1 on sand — passes AA non-text 3:1 on both |
+| `--color-border-inverse` | `#577268` | Rules on `--color-surface-inverse` (footer divider) | 2.09:1 vs green — decorative divider, not a component boundary |
+| `--color-focus-ring` | `#111111` | Focus indicator, outer ring | 17.75:1 on cream, 14.54:1 on sand |
+| `--color-focus-ring-halo` | `#F9F8F2` | Focus indicator, inner halo | 10.31:1 on brand green, 4.40:1 on accent red |
+| `--color-overlay-scrim` | `rgba(17, 17, 17, 0.60)` | Mobile nav backdrop, modal scrim | — |
+| `--color-hero-overlay` | `rgba(17, 17, 17, var(--hero-overlay-alpha))` | Hero image darkening; alpha set per-block from the CMS `overlay` field | Must yield ≥4.5:1 for hero text — see below |
 
-`--color-focus-ring` is a blue chosen specifically because it contrasts against
-both the off-white surface and the brand red. A red focus ring on a red button
-is invisible.
+The focus indicator is two-tone; §9 gives the rule and the reasoning. In short:
+no single hue in this palette clears 3:1 against cream, sand, **and** brand green
+at once, so ink and cream are stacked and each covers the surfaces the other
+cannot.
+
+The hero overlay stays on ink, not on `--color-surface-inverse`. Composited over
+the worst case — a blown-out white region of the photograph — brand green at any
+usable alpha tops out around 3.7:1, below the 4.5:1 the hero subheading needs.
+Ink reaches 4.65:1 at `alpha 0.60`, which is therefore the token default and the
+floor for the CMS `overlay` field:
+
+| `--hero-overlay-alpha` | Composite over white | Cream text |
+|---|---|---|
+| `0.45` | `#949494` | 2.85:1 — fails |
+| `0.55` | `#7C7C7C` | 3.92:1 — large text only |
+| **`0.60`** | `#707070` | **4.65:1 — AA** |
 
 ### 1.5 Dietary badge pairings
 
@@ -108,10 +169,14 @@ Mapped from the `color` field on `gotg_dietary` terms — see
 
 | Field value | Background token | Text token | Contrast |
 |---|---|---|---|
-| `neutral` | `--color-surface-sunken` `#F0ECE4` | `--color-ink` `#1C1B19` | 14.6:1 — AAA |
-| `green` | `--color-success-subtle` `#E4F0E9` | `--color-success` `#2F6F4E` | 4.62:1 — AA |
-| `amber` | `--color-warning-subtle` `#FBF0DA` | `--color-warning` `#8A5A00` | 4.94:1 — AA |
-| `red` | `--color-danger-subtle` `#FBE7E5` | `--color-danger` `#A32118` | 5.98:1 — AA |
+| `neutral` | `--color-surface-sunken` `#EAE0DA` | `--color-ink` `#111111` | 14.54:1 — AAA |
+| `green` | `--color-success-subtle` `#DFE7DE` | `--color-success` `#1F6B4A` | 5.10:1 — AA |
+| `amber` | `--color-warning-subtle` `#ECE5D5` | `--color-warning` `#8A5A00` | 4.72:1 — AA |
+| `red` | `--color-danger-subtle` `#EFDED8` | `--color-danger` `#96201A` | 5.73:1 — AA |
+
+Only `green` (Vegetarian) and `neutral` (Gluten-Free) are in use — the client
+confirmed those two dietary tags and no others. `amber` and `red` stay in the
+vocabulary because `03-CONTENT-MODEL.md` §8.1 declares the field's full range.
 
 Badges never rely on colour alone: each renders its `abbreviation` text and
 carries the full `description` as its accessible name.
@@ -393,42 +458,44 @@ prohibited except in the reduced-motion and print blocks.
 ```css
 :root {
   /* Colour — brand and surface */
-  --color-brand-primary: #b02a20;
-  --color-brand-primary-hover: #8f211a;
-  --color-brand-primary-active: #74190f;
-  --color-brand-primary-subtle: #f7e7e5;
-  --color-brand-ember: #d9741f;
-  --color-brand-oak: #8a6a4b;
-  --color-surface: #faf8f4;
+  --color-brand-primary: #1e4338;
+  --color-brand-primary-hover: #19372e;
+  --color-brand-primary-active: #142c25;
+  --color-brand-primary-subtle: #dfe2dc;
+  --color-brand-accent: #de2a33;
+  --color-brand-accent-subtle: #f6e3df;
+  --color-surface: #f9f8f2;
   --color-surface-raised: #ffffff;
-  --color-surface-sunken: #f0ece4;
-  --color-surface-inverse: #1c1b19;
+  --color-surface-sunken: #eae0da;
+  --color-surface-inverse: #1e4338;
 
   /* Colour — ink */
-  --color-ink: #1c1b19;
-  --color-ink-muted: #57534e;
-  --color-ink-subtle: #78716c;
-  --color-ink-inverse: #faf8f4;
-  --color-ink-inverse-muted: #d6d3d1;
+  --color-ink: #111111;
+  --color-ink-muted: #3e4743;
+  --color-ink-subtle: #59615d;
+  --color-ink-inverse: #f9f8f2;
+  --color-ink-inverse-muted: #bcc5be;
 
   /* Colour — semantic */
-  --color-success: #2f6f4e;
-  --color-success-subtle: #e4f0e9;
+  --color-success: #1f6b4a;
+  --color-success-subtle: #dfe7de;
   --color-warning: #8a5a00;
-  --color-warning-subtle: #fbf0da;
-  --color-danger: #a32118;
-  --color-danger-subtle: #fbe7e5;
+  --color-warning-subtle: #ece5d5;
+  --color-danger: #96201a;
+  --color-danger-subtle: #efded8;
   --color-info: #1f5e82;
-  --color-info-subtle: #e3eef4;
+  --color-info-subtle: #dfe6e5;
 
   /* Colour — border and overlay */
-  --color-border: #e0dad0;
-  --color-border-strong: #b8afa1;
-  --color-border-interactive: #57534e;
-  --color-focus-ring: #1f5e82;
-  --color-overlay-scrim: rgba(28, 27, 25, 0.6);
-  --hero-overlay-alpha: 0.4;
-  --color-hero-overlay: rgba(28, 27, 25, var(--hero-overlay-alpha));
+  --color-border: #d2cdc7;
+  --color-border-strong: #a5aba3;
+  --color-border-interactive: #6c7f76;
+  --color-border-inverse: #577268;
+  --color-focus-ring: #111111;
+  --color-focus-ring-halo: #f9f8f2;
+  --color-overlay-scrim: rgba(17, 17, 17, 0.6);
+  --hero-overlay-alpha: 0.6;
+  --color-hero-overlay: rgba(17, 17, 17, var(--hero-overlay-alpha));
 
   /* Typography — families */
   --font-display: "Bitter", Georgia, "Times New Roman", serif;
@@ -604,8 +671,8 @@ Tailwind CSS 4 reads its theme from CSS. `frontend/src/styles/theme.css`:
   --color-brand-hover: var(--color-brand-primary-hover);
   --color-brand-active: var(--color-brand-primary-active);
   --color-brand-subtle: var(--color-brand-primary-subtle);
-  --color-ember: var(--color-brand-ember);
-  --color-oak: var(--color-brand-oak);
+  --color-accent: var(--color-brand-accent);
+  --color-accent-subtle: var(--color-brand-accent-subtle);
 
   --color-surface: var(--color-surface);
   --color-surface-raised: var(--color-surface-raised);
@@ -630,6 +697,7 @@ Tailwind CSS 4 reads its theme from CSS. `frontend/src/styles/theme.css`:
   --color-border: var(--color-border);
   --color-border-strong: var(--color-border-strong);
   --color-border-interactive: var(--color-border-interactive);
+  --color-border-inverse: var(--color-border-inverse);
   --color-focus: var(--color-focus-ring);
 
   --font-display: var(--font-display);
@@ -714,10 +782,28 @@ value must resolve to a token. Enforced by ESLint — see
 
 One focus treatment, applied globally. Components do not define their own.
 
+It is two-tone: a 2px ink outline held 2px off the element, with a cream halo
+filling that gap. The provisional palette could use a single blue because blue
+contrasted with both the off-white surface and the red brand colour. This
+palette has no such hue — the surfaces now span cream, sand, and a dark green,
+and nothing clears 3:1 against all three:
+
+| Candidate | On cream | On sand | On brand green |
+|---|---|---|---|
+| `#1F5E82` (the old blue) | 6.62:1 | 5.42:1 | **1.56:1** |
+| `#111111` (ink) | 17.75:1 | 14.54:1 | **1.72:1** |
+| `#F9F8F2` (cream) | **1.00:1** | **1.22:1** | 10.31:1 |
+
+Stacking the last two solves it: on cream and sand the ink outline carries the
+indicator (17.75:1, 14.54:1); on the green button and green CTA bands the cream
+halo carries it (10.31:1), with the ink outline reading against the halo at
+17.75:1. Every surface is covered by at least one ring at well over 3:1.
+
 ```css
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
   outline: var(--border-width-thick) solid var(--color-focus-ring);
   outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--color-focus-ring-halo);
   border-radius: var(--radius-sm);
 }
 
@@ -842,8 +928,8 @@ documents must list the same components.
 
 ## 11. Contrast Validation Protocol
 
-Because §1 values are provisional (DP-10), contrast is re-validated whenever a
-colour token changes:
+§1 is frozen now that DP-10 has closed, but contrast is still re-validated
+whenever a colour token changes:
 
 1. `pnpm test:contrast` runs a Vitest suite that computes WCAG contrast for
    every pairing declared in §1 and fails if a pairing falls below its stated

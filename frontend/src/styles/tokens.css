@@ -1,47 +1,61 @@
 /*
  * Design tokens — CSS custom properties.
  * Source of truth: 05-DESIGN-SYSTEM.md §8.1. This file is a verbatim
- * transcription; values are provisional until brand assets arrive (DP-10).
+ * transcription.
+ *
+ * Colour is the client's delivered brand palette (DP-10, closed 2026-08-17):
+ * green #1E4338, red #DE2A33, cream #F9F8F2, sand #EAE0DA, ink #111111.
+ * Everything else in the colour block is derived from those five and its
+ * contrast is recorded in 05-DESIGN-SYSTEM.md §1.
  */
 
 :root {
   /* Colour — brand and surface */
-  --color-brand-primary: #b02a20;
-  --color-brand-primary-hover: #8f211a;
-  --color-brand-primary-active: #74190f;
-  --color-brand-primary-subtle: #f7e7e5;
-  --color-brand-ember: #d9741f;
-  --color-brand-oak: #8a6a4b;
-  --color-surface: #faf8f4;
+  --color-brand-primary: #1e4338;
+  --color-brand-primary-hover: #19372e;
+  --color-brand-primary-active: #142c25;
+  --color-brand-primary-subtle: #dfe2dc;
+  /* Accent. Logo, large display accents, decoration. 4.40:1 on surface —
+     below the 4.5:1 normal-text floor, so never body text, small labels, or
+     form errors (05-DESIGN-SYSTEM.md §1.1). */
+  --color-brand-accent: #de2a33;
+  --color-brand-accent-subtle: #f6e3df;
+  --color-surface: #f9f8f2;
   --color-surface-raised: #ffffff;
-  --color-surface-sunken: #f0ece4;
-  --color-surface-inverse: #1c1b19;
+  --color-surface-sunken: #eae0da;
+  --color-surface-inverse: #1e4338;
 
   /* Colour — ink */
-  --color-ink: #1c1b19;
-  --color-ink-muted: #57534e;
-  --color-ink-subtle: #78716c;
-  --color-ink-inverse: #faf8f4;
-  --color-ink-inverse-muted: #d6d3d1;
+  --color-ink: #111111;
+  --color-ink-muted: #3e4743;
+  --color-ink-subtle: #59615d;
+  --color-ink-inverse: #f9f8f2;
+  --color-ink-inverse-muted: #bcc5be;
 
   /* Colour — semantic */
-  --color-success: #2f6f4e;
-  --color-success-subtle: #e4f0e9;
+  --color-success: #1f6b4a;
+  --color-success-subtle: #dfe7de;
   --color-warning: #8a5a00;
-  --color-warning-subtle: #fbf0da;
-  --color-danger: #a32118;
-  --color-danger-subtle: #fbe7e5;
+  --color-warning-subtle: #ece5d5;
+  --color-danger: #96201a;
+  --color-danger-subtle: #efded8;
   --color-info: #1f5e82;
-  --color-info-subtle: #e3eef4;
+  --color-info-subtle: #dfe6e5;
 
   /* Colour — border and overlay */
-  --color-border: #e0dad0;
-  --color-border-strong: #b8afa1;
-  --color-border-interactive: #57534e;
-  --color-focus-ring: #1f5e82;
-  --color-overlay-scrim: rgba(28, 27, 25, 0.6);
-  --hero-overlay-alpha: 0.4;
-  --color-hero-overlay: rgba(28, 27, 25, var(--hero-overlay-alpha));
+  --color-border: #d2cdc7;
+  --color-border-strong: #a5aba3;
+  --color-border-interactive: #6c7f76;
+  --color-border-inverse: #577268;
+  /* Two-tone focus indicator. No single hue clears 3:1 against cream, sand,
+     and brand green at once, so the ring is an ink outline over a cream halo:
+     on light surfaces the outline carries it (17.75:1 / 14.54:1), on green the
+     halo does (10.31:1). 05-DESIGN-SYSTEM.md §9. */
+  --color-focus-ring: #111111;
+  --color-focus-ring-halo: #f9f8f2;
+  --color-overlay-scrim: rgba(17, 17, 17, 0.6);
+  --hero-overlay-alpha: 0.6;
+  --color-hero-overlay: rgba(17, 17, 17, var(--hero-overlay-alpha));
 
   /* Typography — families */
   --font-display: 'Bitter', Georgia, 'Times New Roman', serif;
@@ -140,13 +154,13 @@
 
   /* Shadows */
   --shadow-none: none;
-  --shadow-sm: 0 1px 2px 0 rgba(28, 27, 25, 0.06);
+  --shadow-sm: 0 1px 2px 0 rgba(17, 17, 17, 0.06);
   --shadow-md:
-    0 4px 12px -2px rgba(28, 27, 25, 0.1), 0 2px 4px -2px rgba(28, 27, 25, 0.06);
+    0 4px 12px -2px rgba(17, 17, 17, 0.1), 0 2px 4px -2px rgba(17, 17, 17, 0.06);
   --shadow-lg:
-    0 12px 28px -6px rgba(28, 27, 25, 0.14),
-    0 4px 8px -4px rgba(28, 27, 25, 0.08);
-  --shadow-xl: 0 24px 48px -12px rgba(28, 27, 25, 0.2);
+    0 12px 28px -6px rgba(17, 17, 17, 0.14),
+    0 4px 8px -4px rgba(17, 17, 17, 0.08);
+  --shadow-xl: 0 24px 48px -12px rgba(17, 17, 17, 0.2);
 
   /* Borders */
   --border-width: 1px;

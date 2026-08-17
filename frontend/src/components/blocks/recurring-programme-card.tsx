@@ -36,7 +36,7 @@ export function RecurringProgrammeCard({
   return (
     <Section spacing="tight" ariaLabelledBy={headingId}>
       <Container>
-        <div className="flex flex-col gap-3 rounded-lg border border-oak bg-surface-raised p-6 shadow-sm md:p-8">
+        <div className="flex flex-col gap-3 rounded-lg border border-brand bg-surface-raised p-6 shadow-sm md:p-8">
           <Text as="span" size="overline" tone="muted" weight="semibold">
             {daysLabel} ·{' '}
             <time dateTime={recurring.starts}>{startLabel}</time>–

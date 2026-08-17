@@ -49,7 +49,7 @@ export function MenuCard({
     <article
       className={cn(
         'flex flex-col gap-4 rounded-lg p-4 md:flex-row',
-        variant === 'featured' && 'border border-oak shadow-sm',
+        variant === 'featured' && 'border border-brand shadow-sm',
       )}
     >
       {item.image ? (
@@ -69,7 +69,7 @@ export function MenuCard({
               {item.name}
             </Heading>
             {item.spiceLevel !== 'none' ? (
-              <span className="text-ember">
+              <span className="text-accent">
                 <Icon name="flame" size={16} title={SPICE_LABEL[item.spiceLevel]} />
               </span>
             ) : null}

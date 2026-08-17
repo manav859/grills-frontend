@@ -832,8 +832,11 @@ Empty states:
 - `priceVariants` with one unlabelled entry → renders as a plain price with no
   list markup and no label node.
 
-`variant="featured"` adds a 1px `--color-brand-oak` border and
-`--shadow-sm`; it does not change the semantics.
+`variant="featured"` adds a 1px `--color-brand-primary` border and
+`--shadow-sm`; it does not change the semantics. The spice glyph, when present,
+is `--color-brand-accent` — a 16px icon at 4.40:1 on surface, above the 3:1
+non-text floor, and it always carries a `title`, so colour is never the only
+signal.
 
 Data source: `gotg_menu_item` — see `03-CONTENT-MODEL.md` §3.
 

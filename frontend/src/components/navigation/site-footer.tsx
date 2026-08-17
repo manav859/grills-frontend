@@ -134,7 +134,7 @@ export function SiteFooter({ global }: SiteFooterProps): ReactNode {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 border-t border-ink-inverse-muted py-6 text-ink-inverse-muted md:flex-row md:items-center md:gap-4">
+        <div className="flex flex-col gap-2 border-t border-border-inverse py-6 text-ink-inverse-muted md:flex-row md:items-center md:gap-4">
           <Text tone="inverse-muted" size="caption">
             © {year} {site.legalName}
           </Text>

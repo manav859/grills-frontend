@@ -21,10 +21,17 @@ body {
  * Focus indicator — 05-DESIGN-SYSTEM.md §9. One treatment, applied globally;
  * components never define their own. `outline: none` without a replacement is
  * prohibited anywhere in the codebase.
+ *
+ * Two-tone: an ink outline sitting 2px off the element, with a cream halo
+ * (box-shadow spread) filling that gap. No single hue in the brand palette
+ * clears 3:1 against cream, sand, and brand green simultaneously, so each ring
+ * covers what the other cannot — the outline on light surfaces, the halo on the
+ * green button and green bands.
  */
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
   outline: var(--border-width-thick) solid var(--color-focus-ring);
   outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--color-focus-ring-halo);
   border-radius: var(--radius-sm);
 }
 
