@@ -23,7 +23,7 @@ export function PageHeader({
   eyebrow,
 }: PageHeaderProps): ReactNode {
   return (
-    <Section spacing="tight">
+    <Section spacing="tight" watermark="script" watermarkPlacement="right">
       <Container width="narrow">
         <div className="flex flex-col gap-3">
           {eyebrow !== undefined && eyebrow !== '' ? (

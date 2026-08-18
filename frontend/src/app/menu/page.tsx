@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
+import { Fragment } from 'react';
 import type { ReactNode } from 'react';
 
 import { DietaryLegend } from '@/components/blocks/dietary-legend';
 import { MenuSection } from '@/components/blocks/menu-section';
 import { PageHeader } from '@/components/blocks/page-header';
+import { SectionDivider } from '@/components/brand/brand-decor';
 import { Container } from '@/components/layout/container';
 import { PageShell } from '@/components/layout/page-shell';
 import { Section } from '@/components/layout/section';
@@ -61,12 +63,13 @@ export default async function MenuPage(): Promise<ReactNode> {
             </Text>
           ) : (
             <div className="flex flex-col gap-16">
-              {sections.map((section) => (
-                <MenuSection
-                  key={section.slug}
-                  section={section}
-                  activeDaypart="all"
-                />
+              {sections.map((section, index) => (
+                <Fragment key={section.slug}>
+                  {/* A flag divider between sections, never above the first —
+                      a rule at the top of a list separates it from nothing. */}
+                  {index > 0 ? <SectionDivider /> : null}
+                  <MenuSection section={section} activeDaypart="all" />
+                </Fragment>
               ))}
             </div>
           )}

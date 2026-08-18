@@ -12,8 +12,8 @@ section constrains interpretation; it is not decoration.
 
 | Principle | Source | Application here |
 |---|---|---|
-| Editorial restraint, generous whitespace | sweetgreen | Section vertical rhythm of 96–128px at desktop. One idea per band. No decorative dividers. |
-| Photography carries the page | sweetgreen | Hero and split-feature images are full-bleed or half-bleed. Photography is never a background texture behind body copy. |
+| Editorial restraint, generous whitespace | sweetgreen | Section vertical rhythm of 96–128px at desktop. One idea per band. **Revised 2026-08-18:** the blanket ban on decorative dividers is lifted for the brand flag glyph only — see §1.6. Everything else still holds, and a divider is never a substitute for spacing. |
+| Photography carries the page | sweetgreen | Hero and split-feature images are full-bleed or half-bleed. Photography is never a background texture behind body copy — the §1.6 watermarks are flat brand line-art at ≤10% opacity, not photographs, which is why they are permitted where a photo would not be. |
 | One unmistakable primary CTA per view | sweetgreen | Exactly one `Button variant="primary"` per viewport band. Secondary actions use `variant="secondary"` or `variant="ghost"`. |
 | Restrained motion | sweetgreen | Entrance animation is opacity and 8px translate only. No parallax. No scroll-jacking. Nothing animates longer than 400ms. |
 | Restaurant-industry conventions | woodranch | Menu as a single scannable page. Hours and phone permanently reachable. Events as dated cards. Catering and private events as first-class destinations (Phase 2). |
@@ -180,6 +180,48 @@ vocabulary because `03-CONTENT-MODEL.md` §8.1 declares the field's full range.
 
 Badges never rely on colour alone: each renders its `abbreviation` text and
 carries the full `description` as its accessible name.
+
+### 1.6 Brand decoration
+
+The client supplied supporting graphics alongside the logo. They are used as
+texture so a page reads as designed rather than as flat bands of colour. Only
+the supporting elements are used — the red-flag horizontal lockup stays the one
+identity and is never repeated as decoration.
+
+| Asset | File | Used as |
+|---|---|---|
+| Flag sketch, green | `/brand/decor/flag-sketch.png` | Section watermark; accent beside menu-section titles; the divider glyph |
+| Flag sketch, cream | `/brand/decor/flag-sketch-cream.png` | The same, on brand-green bands |
+| Script wordmark, green | `/brand/decor/script-wordmark.png` | Large watermark behind page headers and the featured-items band |
+
+All decoration is `aria-hidden`, `pointer-events-none`, and carries no meaning
+that the text does not.
+
+**Watermark opacity is capped by contrast, not by taste.** A watermark sits
+behind text, so in the worst case a stroke lands directly under a glyph. The
+effective background is then the surface composited with brand green:
+
+| Opacity | Effective bg on cream | Ink | Muted ink | Green heading |
+|---|---|---|---|---|
+| 0.05 | `#EEEFE9` | 16.33:1 | 8.30:1 | 9.48:1 |
+| **0.10** | `#E3E6DF` | **14.97:1** | **7.61:1** | **8.69:1** |
+| 0.12 | `#DFE2DC` | 14.43:1 | 7.34:1 | 8.38:1 |
+
+Light surfaces use `0.10` — visible as texture, with every pairing still AAA.
+On `--color-surface-inverse` the cream watermark is held to `0.05`, because at
+`0.12` muted cream text falls to 4.38:1 and fails AA.
+
+The hero takes no watermark: it already carries a photograph behind an ink
+scrim, and a second layer there would fight the scrim the hero text depends on.
+
+**No empty badge frame exists.** The delivered oval and pill badges are complete
+compositions with the wordmark and "since 2024" locked inside them, so there is
+no frame asset to wrap around arbitrary content. A framed treatment would have
+to be drawn in CSS from `--radius-full` and a border token rather than taken
+from the brand kit. Likewise there is no standalone putting-green shape and no
+separate flourish — the green always comes attached to the flag.
+
+---
 
 ---
 

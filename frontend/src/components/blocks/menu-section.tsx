@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 
 import { MenuCard } from '@/components/blocks/menu-card';
+import { BrandAccent } from '@/components/brand/brand-decor';
 import { Heading } from '@/components/primitives/heading';
 import { Image } from '@/components/primitives/image';
 import { Text } from '@/components/primitives/text';
@@ -37,7 +38,9 @@ export function MenuSection({
   const visibleItems =
     activeDaypart === 'all'
       ? section.items
-      : section.items.filter((item) => item.availability.includes(activeDaypart));
+      : section.items.filter((item) =>
+          item.availability.includes(activeDaypart),
+        );
 
   const sectionStyle: CSSProperties = {
     scrollMarginTop: 'calc(var(--header-height) + var(--space-4))',
@@ -64,9 +67,14 @@ export function MenuSection({
       className="flex flex-col gap-6"
     >
       <div className="flex flex-col gap-3">
-        <Heading level={depth === 0 ? 2 : 3} id={headingId}>
-          {section.title}
-        </Heading>
+        {/* The flag sits beside a top-level section title only — repeating it on
+            every nested sub-section would turn an accent into wallpaper. */}
+        <div className="flex items-center gap-3">
+          {depth === 0 ? <BrandAccent size="sm" /> : null}
+          <Heading level={depth === 0 ? 2 : 3} id={headingId}>
+            {section.title}
+          </Heading>
+        </div>
         {section.intro !== undefined && section.intro !== '' ? (
           <Text size="body-lg" tone="muted">
             {section.intro}
