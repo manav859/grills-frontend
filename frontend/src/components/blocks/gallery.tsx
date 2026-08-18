@@ -19,10 +19,14 @@ import type { GalleryBlock } from '@/types/api';
  */
 
 export interface GalleryProps {
+  band?: 'surface' | 'sunken';
   block: GalleryBlock;
 }
 
-export function Gallery({ block }: GalleryProps): ReactNode {
+export function Gallery({
+  block,
+  band = 'surface',
+}: GalleryProps): ReactNode {
   if (block.images.length === 0) {
     return null;
   }
@@ -49,7 +53,10 @@ export function Gallery({ block }: GalleryProps): ReactNode {
     );
 
   return (
-    <Section {...(headingId !== undefined ? { ariaLabelledBy: headingId } : {})}>
+    <Section
+      tone={band}
+      {...(headingId !== undefined ? { ariaLabelledBy: headingId } : {})}
+    >
       <Container>
         <div className="flex flex-col gap-6">
           {hasHeading ? (

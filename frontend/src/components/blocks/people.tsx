@@ -17,10 +17,14 @@ import type { PeopleBlock } from '@/types/api';
  */
 
 export interface PeopleProps {
+  band?: 'surface' | 'sunken';
   block: PeopleBlock;
 }
 
-export function People({ block }: PeopleProps): ReactNode {
+export function People({
+  block,
+  band = 'surface',
+}: PeopleProps): ReactNode {
   if (block.people.length === 0) {
     return null;
   }
@@ -29,7 +33,10 @@ export function People({ block }: PeopleProps): ReactNode {
   const headingId = hasHeading ? slugId('people', block.heading ?? '') : undefined;
 
   return (
-    <Section {...(headingId !== undefined ? { ariaLabelledBy: headingId } : {})}>
+    <Section
+      tone={band}
+      {...(headingId !== undefined ? { ariaLabelledBy: headingId } : {})}
+    >
       <Container>
         <div className="flex flex-col gap-8">
           {hasHeading ? (

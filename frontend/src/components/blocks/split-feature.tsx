@@ -22,6 +22,7 @@ import type { SplitFeatureBlock } from '@/types/api';
  */
 
 export interface SplitFeatureProps {
+  band?: 'surface' | 'sunken';
   block: SplitFeatureBlock;
 }
 
@@ -35,7 +36,10 @@ function withLineBreaks(text: string): ReactNode {
   ));
 }
 
-export function SplitFeature({ block }: SplitFeatureProps): ReactNode {
+export function SplitFeature({
+  block,
+  band = 'surface',
+}: SplitFeatureProps): ReactNode {
   const headingId = slugId('split', block.heading);
 
   const media = (
@@ -68,7 +72,7 @@ export function SplitFeature({ block }: SplitFeatureProps): ReactNode {
   );
 
   return (
-    <Section ariaLabelledBy={headingId}>
+    <Section tone={band} ariaLabelledBy={headingId}>
       <Container>
         <SplitLayout imageSide={block.imageSide} media={media} content={content} />
       </Container>

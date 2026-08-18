@@ -19,6 +19,7 @@ import type { TextBlock } from '@/types/api';
  */
 
 export interface TextSectionProps {
+  band?: 'surface' | 'sunken';
   block: TextBlock;
   headingLevelOffset?: 0 | 1;
 }
@@ -31,12 +32,16 @@ const HEADING_LEVEL = {
 export function TextSection({
   block,
   headingLevelOffset = 0,
+  band = 'surface',
 }: TextSectionProps): ReactNode {
   const hasHeading = block.heading !== undefined && block.heading !== '';
   const headingId = hasHeading ? slugId('text', block.heading ?? '') : undefined;
 
   return (
-    <Section {...(headingId !== undefined ? { ariaLabelledBy: headingId } : {})}>
+    <Section
+      tone={band}
+      {...(headingId !== undefined ? { ariaLabelledBy: headingId } : {})}
+    >
       <Container width={block.width === 'narrow' ? 'narrow' : 'default'}>
         <div
           className={cn(

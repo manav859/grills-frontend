@@ -24,10 +24,14 @@ import type { EventsPreviewBlock } from '@/types/api';
  */
 
 export interface EventsPreviewProps {
+  band?: 'surface' | 'sunken';
   block: EventsPreviewBlock;
 }
 
-export function EventsPreview({ block }: EventsPreviewProps): ReactNode {
+export function EventsPreview({
+  block,
+  band = 'surface',
+}: EventsPreviewProps): ReactNode {
   if (block.events.length === 0) {
     return null;
   }
@@ -35,7 +39,7 @@ export function EventsPreview({ block }: EventsPreviewProps): ReactNode {
   const headingId = slugId('events', block.heading);
 
   return (
-    <Section ariaLabelledBy={headingId}>
+    <Section tone={band} ariaLabelledBy={headingId} watermark="flag">
       <Container>
         <div className="flex flex-col gap-6">
           <Heading level={2} id={headingId}>

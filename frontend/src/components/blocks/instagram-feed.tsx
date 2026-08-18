@@ -31,6 +31,7 @@ import type { ImageObject, InstagramFeedBlock } from '@/types/api';
  */
 
 export interface InstagramFeedProps {
+  band?: 'surface' | 'sunken';
   block: InstagramFeedBlock;
 }
 
@@ -69,7 +70,10 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   ]);
 }
 
-export function InstagramFeed({ block }: InstagramFeedProps): ReactNode {
+export function InstagramFeed({
+  block,
+  band = 'surface',
+}: InstagramFeedProps): ReactNode {
   const containerRef = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<FeedState>({ status: 'loading' });
 
@@ -157,7 +161,7 @@ export function InstagramFeed({ block }: InstagramFeedProps): ReactNode {
   }
 
   return (
-    <Section ariaLabelledBy={headingId}>
+    <Section tone={band} ariaLabelledBy={headingId}>
       <Container>
         <div ref={containerRef} className="flex flex-col items-start gap-6">
           <Heading level={2} id={headingId}>

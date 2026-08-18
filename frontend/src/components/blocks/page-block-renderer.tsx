@@ -40,6 +40,18 @@ export function PageBlockRenderer({
   blocks,
   headingLevelOffset = 0,
 }: PageBlockRendererProps): ReactNode {
+  /*
+   * Cream/sand alternation. Counted over the blocks that actually paint a
+   * band, so a Hero (full-bleed image) or a CtaBand (its own brand/ink colour)
+   * neither takes a turn nor breaks the rhythm of the ones around it. Without
+   * this the page is one flat cream from header to footer.
+   */
+  let bandIndex = -1;
+  const nextBand = (): 'surface' | 'sunken' => {
+    bandIndex += 1;
+    return bandIndex % 2 === 0 ? 'surface' : 'sunken';
+  };
+
   return (
     <>
       {blocks.map((block, index) => {
@@ -53,23 +65,26 @@ export function PageBlockRenderer({
               <TextSection
                 key={key}
                 block={block}
+                band={nextBand()}
                 headingLevelOffset={headingLevelOffset}
               />
             );
           case 'split_feature':
-            return <SplitFeature key={key} block={block} />;
+            return <SplitFeature key={key} block={block} band={nextBand()} />;
           case 'gallery':
-            return <Gallery key={key} block={block} />;
+            return <Gallery key={key} block={block} band={nextBand()} />;
           case 'cta_band':
             return <CtaBand key={key} block={block} />;
           case 'featured_items':
-            return <FeaturedMenuRow key={key} block={block} />;
+            return (
+              <FeaturedMenuRow key={key} block={block} band={nextBand()} />
+            );
           case 'events_preview':
-            return <EventsPreview key={key} block={block} />;
+            return <EventsPreview key={key} block={block} band={nextBand()} />;
           case 'people':
-            return <People key={key} block={block} />;
+            return <People key={key} block={block} band={nextBand()} />;
           case 'instagram_feed':
-            return <InstagramFeed key={key} block={block} />;
+            return <InstagramFeed key={key} block={block} band={nextBand()} />;
           default: {
             const exhaustive: never = block;
             if (process.env.NODE_ENV !== 'production') {

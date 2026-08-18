@@ -23,10 +23,14 @@ import type { FeaturedItemsBlock } from '@/types/api';
  */
 
 export interface FeaturedMenuRowProps {
+  band?: 'surface' | 'sunken';
   block: FeaturedItemsBlock;
 }
 
-export function FeaturedMenuRow({ block }: FeaturedMenuRowProps): ReactNode {
+export function FeaturedMenuRow({
+  block,
+  band = 'surface',
+}: FeaturedMenuRowProps): ReactNode {
   if (block.items.length === 0) {
     return null;
   }
@@ -34,7 +38,7 @@ export function FeaturedMenuRow({ block }: FeaturedMenuRowProps): ReactNode {
   const headingId = slugId('featured', block.heading);
 
   return (
-    <Section tone="sunken" ariaLabelledBy={headingId}>
+    <Section tone={band} ariaLabelledBy={headingId} watermark="script">
       <Container>
         <div className="flex flex-col gap-6">
           <Heading level={2} id={headingId}>
