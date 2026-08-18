@@ -452,10 +452,15 @@ The street address, postal code, and phone in this example are the confirmed
 real values as of 2026-08-17 — 5031 Alamo St, Simi Valley, CA 93063, and
 805-842-2947.
 
-`[ASSUMPTION] The coordinates, email, and Google Maps CID are still
-placeholders, and `legalName` carries the trading name rather than a verified
-registered entity. Blocked on DP-02 and DP-18. Do not copy those four into
-production content.`
+The coordinates and Google Maps CID were placeholders until 2026-08-18 and are
+now the values Google's own geocoder returns for the confirmed street address
+(place `0x80e82951701e610d:0xae30e6459ea9ab8a`). The old pair sat 4.65 km away.
+
+`[ASSUMPTION] Those coordinates are Google-sourced, not client-confirmed — check
+them against the client's Google Business Profile before launch, since they feed
+the GeoCoordinates node. `email` is the client's address but flagged as liable
+to change, and `legalName` carries the trading name rather than a verified
+registered entity. DP-02 and DP-18 stay open.`
 
 ### 3.2 `_global` cost and mitigation
 

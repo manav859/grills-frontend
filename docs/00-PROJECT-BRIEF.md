@@ -13,12 +13,13 @@ Last reviewed: 2026-07-22
 | Client name | Grill on the Green | Supplied |
 | Business type | Full-service restaurant | Supplied |
 | Location | Simi Hills Golf Course, Simi Valley, CA | Supplied |
-| Street address | `[NEEDS CLIENT INPUT]` | — |
+| Street address | 5031 Alamo St, Simi Valley, CA 93063 | Confirmed 2026-08-17 |
 | Cuisine | American classics + smoked BBQ | Supplied |
 | Hours | Mon–Sun, 06:00–21:00 | Supplied |
 | Dayparts served | Breakfast, lunch, dinner | Supplied |
 | Phone | 805-842-2947 | Supplied |
 | Instagram | `@grillonthegreen_simi` | Supplied |
+| Email | grillonthegreensimivalley@gmail.com | Confirmed 2026-08-18, provisional — DP-18 |
 | Live music | Friday and Saturday, 18:00–21:00 | Supplied |
 | Tagline in use | "Smoke your birdie" | Supplied |
 | Ownership | Mark (golfer), Marco (BBQ chef) | Supplied |
@@ -165,7 +166,7 @@ the party who must answer, not the party who chases the answer.
 | DP-15 | Who is the day-to-day content editor after launch? | Editor-experience design in `03-CONTENT-MODEL.md`, training scope | Client | Editor UX tuned for an unknown skill level |
 | DP-16 | Monthly hosting/service budget ceiling | Hosting tier selection in `01-TECH-STACK.md` | Client | Recommendations assume mid-tier |
 | DP-17 | Existing Google Analytics / Search Console / Google Business Profile access | Analytics continuity, baselines | Client | Historical baselines lost |
-| DP-18 | Email address(es) to receive contact and catering form submissions | `09-INTEGRATIONS.md` form delivery | Client | Forms cannot be wired |
+| DP-18 | Email address(es) to receive contact and catering form submissions | `09-INTEGRATIONS.md` form delivery | Client | **Partially answered 2026-08-18** — grillonthegreensimivalley@gmail.com is seeded as both the published location email and the form recipient, but the client flagged it may change, and CONTACT_FORM_TO still has to be set on Vercel for delivery to actually happen. Kept open. |
 | DP-19 | Does a newsletter list exist, and on what platform? | Newsletter integration | Client | Capture deferred |
 | DP-20 | Confirmed live-music booking lead time (how far ahead are acts known?) | Events publishing workflow, revalidation cadence | Client | Events cache policy is a guess |
 | DP-21 | Full menu with current prices in a structured form (spreadsheet or PDF) | Content entry, launch date | Client | Content entry cannot start |
