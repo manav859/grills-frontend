@@ -4,18 +4,22 @@ import { Text } from '@/components/primitives/text';
 import type { Location } from '@/types/api';
 
 /*
- * MapEmbed — 06-COMPONENT-SPEC.md §MapEmbed. The spec's default `static` variant
- * is a Google Static Maps image built from the location's coordinates, wrapped
- * in a link to `directionsUrl`.
+ * MapEmbed — 06-COMPONENT-SPEC.md §MapEmbed.
  *
- * PENDING (09-INTEGRATIONS.md §8): Google Static Maps is "pending client
- * approval" and needs an API key that is not configured. Rather than block on a
- * key or render a broken <img>, this renders a graceful, keyless placeholder —
- * a styled panel that IS the directions link — so the section is usable now and
- * upgrades to the real static image once the key lands. Flagged, not invented.
+ * `interactive` is the variant /contact renders. It is the keyless Google Maps
+ * embed — `maps.google.com/maps?q=…&output=embed` — which needs no API key, no
+ * Google Cloud project, and no billing account, so it works in every
+ * environment with no configuration. 09-INTEGRATIONS.md §8 recommends the keyed
+ * Static Maps API instead; that recommendation still stands as the later
+ * option, and the trade-off this variant accepts (third-party cookies set
+ * before consent, ~900 KB) is recorded there.
  *
- * `interactive` (an <iframe>) is deliberately not built: it sets third-party
- * cookies and costs ~900 KB (09 §8), and is opt-in only.
+ * `static` remains the default so the recommended path stays the default. Until
+ * GOOGLE_MAPS_STATIC_API_KEY is configured it renders a keyless placeholder
+ * panel that IS the directions link, rather than a broken <img>.
+ *
+ * Both variants keep the address and the "View on Google Maps" link, so the
+ * section stays usable if the iframe is blocked by a content blocker.
  */
 
 export interface MapEmbedProps {
@@ -23,7 +27,62 @@ export interface MapEmbedProps {
   variant?: 'static' | 'interactive';
 }
 
-export function MapEmbed({ location }: MapEmbedProps): ReactNode {
+/* "Grill on the Green, 5031 Alamo St, Simi Valley, CA 93063" — built from the
+ * CMS record rather than hard-coded, so a change in the CMS moves the pin. */
+function locationQuery(location: Location): string {
+  return [
+    location.name,
+    location.streetAddress,
+    location.city,
+    `${location.state} ${location.postalCode}`,
+  ].join(', ');
+}
+
+function AddressLine({ location }: { location: Location }): ReactNode {
+  return (
+    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+      <Text as="span" size="body-sm" tone="muted">
+        {location.streetAddress}, {location.city}, {location.state}{' '}
+        {location.postalCode}
+      </Text>
+      <a
+        href={location.directionsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-body text-body-sm text-brand font-semibold underline"
+      >
+        View on Google Maps
+      </a>
+    </div>
+  );
+}
+
+export function MapEmbed({
+  location,
+  variant = 'static',
+}: MapEmbedProps): ReactNode {
+  if (variant === 'interactive') {
+    const src = `https://maps.google.com/maps?q=${encodeURIComponent(
+      locationQuery(location),
+    )}&output=embed`;
+
+    return (
+      <div className="flex flex-col gap-3">
+        <div className="border-border-strong aspect-16-9 w-full overflow-hidden rounded-lg border">
+          <iframe
+            src={src}
+            title={`Map showing ${location.name}, ${location.streetAddress}, ${location.city}`}
+            loading="lazy"
+            allowFullScreen
+            referrerPolicy="no-referrer-when-downgrade"
+            className="h-full w-full border-0"
+          />
+        </div>
+        <AddressLine location={location} />
+      </div>
+    );
+  }
+
   const accessibleName = `Open directions to ${location.name} in Google Maps`;
 
   return (
@@ -32,9 +91,9 @@ export function MapEmbed({ location }: MapEmbedProps): ReactNode {
       target="_blank"
       rel="noopener noreferrer"
       aria-label={accessibleName}
-      className="group block overflow-hidden rounded-lg border border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-interactive"
+      className="group border-border-strong focus-visible:ring-border-interactive block overflow-hidden rounded-lg border focus-visible:ring-2 focus-visible:outline-none"
     >
-      <div className="flex aspect-16-9 w-full flex-col items-center justify-center gap-2 bg-surface-sunken p-6 text-center transition-colors group-hover:bg-surface-raised">
+      <div className="aspect-16-9 bg-surface-sunken group-hover:bg-surface-raised flex w-full flex-col items-center justify-center gap-2 p-6 text-center transition-colors">
         <Text as="span" weight="semibold">
           {location.name}
         </Text>

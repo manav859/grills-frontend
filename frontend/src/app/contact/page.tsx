@@ -70,7 +70,7 @@ export default async function ContactPage(): Promise<ReactNode> {
               </div>
             </div>
 
-            <MapEmbed location={location} />
+            <MapEmbed location={location} variant="interactive" />
           </div>
         </Container>
       </Section>
@@ -91,16 +91,17 @@ export default async function ContactPage(): Promise<ReactNode> {
                 Our enquiry form is unavailable right now. Please call{' '}
                 <a
                   href={location.phoneHref}
-                  className="font-semibold text-ink underline"
+                  className="text-ink font-semibold underline"
                 >
                   {location.phone}
                 </a>
                 {location.email !== undefined ? (
                   <>
-                    {' '}or email{' '}
+                    {' '}
+                    or email{' '}
                     <a
                       href={`mailto:${location.email}`}
-                      className="font-semibold text-ink underline"
+                      className="text-ink font-semibold underline"
                     >
                       {location.email}
                     </a>

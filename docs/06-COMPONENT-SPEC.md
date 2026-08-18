@@ -1083,10 +1083,24 @@ Default `static`: a static map image built from `location.latitude` and
 accessible name of "Open directions to Grill on the Green in Google Maps". Alt
 text describes the map, not the image file.
 
-`interactive` renders an `<iframe title="Map showing Grill on the Green">` and
-is used only if the client accepts the third-party cookie and performance cost
-— see `09-INTEGRATIONS.md`. Error state: if the static image fails, the link and
-address render alone with no broken image.
+`interactive` renders an `<iframe>` carrying the keyless embed URL
+`https://maps.google.com/maps?q=…&output=embed` — no API key, no billing. The
+query is assembled from the `Location` record (name, street, city, state,
+postal code), not hard-coded, so the pin follows the CMS. The iframe is
+`loading="lazy"`, `allowFullScreen`, and titled "Map showing {name}, {street},
+{city}"; it fills an `aspect-16-9` box so it stays responsive without a fixed
+height.
+
+**`/contact` renders `interactive`.** The default stays `static` so the
+recommended keyed path remains the default, but the Contact route opts in
+explicitly at the call site. The third-party cookie and page-weight costs this
+accepts are recorded in `09-INTEGRATIONS.md` §8.
+
+Both variants render the address and a "View on Google Maps" link outside the
+iframe, so a blocked embed or a failed static image still leaves the section
+usable. Until `GOOGLE_MAPS_STATIC_API_KEY` is configured, `static` renders a
+keyless placeholder panel that is itself the directions link, never a broken
+`<img>`.
 
 ---
 

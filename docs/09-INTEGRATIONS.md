@@ -317,6 +317,35 @@ directions.
 | **Mapbox Static Images** | `<img>` + `<a>` | 50,000/mo free | ~40 KB | No cookies |
 | **OpenStreetMap static** | `<img>` | $0 | ~40 KB | No cookies |
 
+**Shipped: the keyless Google Maps embed.** `/contact` renders
+`MapEmbed variant="interactive"`, pointing at
+`https://maps.google.com/maps?q=…&output=embed`. That URL form needs no API key,
+no Google Cloud project, and no billing account, so the map works in every
+environment with no configuration and no `GOOGLE_MAPS_STATIC_API_KEY`. The query
+is built from the CMS `_global.location` record, so correcting the address in
+WordPress moves the pin.
+
+The Static Maps recommendation below is **not** withdrawn — it remains the
+documented later option, and the environment variable stays registered in
+`10-ENVIRONMENTS-DEPLOYMENT.md` §3.1 against that work. Choosing the iframe now
+buys a working map with zero setup, and accepts three costs the recommendation
+was written to avoid:
+
+| Cost accepted | Detail |
+|---|---|
+| Third-party cookies before consent | Google sets cookies as soon as the iframe loads. There is no consent mechanism on the site, so this is a live privacy exposure — see the note below |
+| Page weight | ~900 KB and ~30 requests against a `/contact` budget of 350 KB. `08-PERFORMANCE-SEO-A11Y.md` §1.2 records the exception |
+| Third-party availability | A content blocker can suppress the iframe entirely |
+
+The third cost is already mitigated: both `MapEmbed` variants render the address
+and a "View on Google Maps" link outside the iframe, so a blocked or failed
+embed still leaves the section usable and the directions reachable.
+
+`[ASSUMPTION] The cookie exposure is accepted for the demo build. Before public
+launch this needs either a consent gate in front of the iframe or a switch to
+the keyed Static Maps path, which sets no cookies. That is a client decision,
+and it is why the recommendation below still stands.`
+
 **Recommendation, pending client approval: Google Static Maps plus a link to
 Google Maps directions.** Google is where the audience's saved places and
 navigation already live, the static image costs ~40 KB against an iframe's

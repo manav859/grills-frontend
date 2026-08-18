@@ -51,6 +51,14 @@ Notes:
 - The Instagram feed is excluded from these budgets because it loads only on
   intersection. Its own ceiling is 150 KB; exceeding it degrades to the link-out
   fallback.
+- **`/contact` exceeds its total budget while the keyless Maps iframe is in
+  place.** The embed is ~900 KB against a 350 KB total, so the route is over
+  budget by roughly a factor of three. It is `loading="lazy"`, which spares
+  mobile (the map sits below the location card and hours) but not desktop, where
+  the right-hand column is above the fold. This is a known, accepted exception
+  for the demo build, not a passing result — `09-INTEGRATIONS.md` §8 records why
+  the iframe was chosen and what closes the gap. Moving to the keyed Static Maps
+  path returns the route to ~40 KB and inside budget.
 
 ### 1.3 Budget enforcement
 
