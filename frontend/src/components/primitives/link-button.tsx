@@ -33,7 +33,8 @@ export interface LinkButtonProps {
 }
 
 const VARIANT = {
-  primary: 'bg-brand text-ink-inverse hover:bg-brand-hover active:bg-brand-active',
+  primary:
+    'bg-brand text-ink-inverse hover:bg-brand-hover active:bg-brand-active',
   secondary:
     'bg-surface-raised text-ink border border-border-interactive hover:bg-surface-sunken',
   ghost: 'text-ink hover:bg-surface-sunken',
@@ -48,7 +49,10 @@ const VARIANT = {
  * and `lg` meet 44px by height.
  */
 const SIZE = {
-  sm: { classes: 'px-3 text-label gotg-hit-target', height: 'var(--control-height-sm)' },
+  sm: {
+    classes: 'px-3 text-label gotg-hit-target',
+    height: 'var(--control-height-sm)',
+  },
   md: { classes: 'px-5 text-body', height: 'var(--control-height-md)' },
   lg: { classes: 'px-6 text-body-lg', height: 'var(--control-height-lg)' },
 } as const;
@@ -69,7 +73,10 @@ export function LinkButton({
 }: LinkButtonProps): ReactNode {
   const sizing = SIZE[size];
   const className = cn(
-    'inline-flex items-center justify-center gap-2 rounded-md font-body font-semibold transition-colors active:translate-y-px',
+    // whitespace-nowrap: a button label is a single action and never reads as
+    // two lines. 'Call 805-842-2947' is the case that forced it — a wrapped
+    // phone number looks broken and costs a tap target's worth of height.
+    'inline-flex items-center justify-center gap-2 rounded-md font-body font-semibold whitespace-nowrap transition-colors active:translate-y-px',
     VARIANT[variant],
     sizing.classes,
     fullWidth && 'w-full',

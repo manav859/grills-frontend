@@ -87,26 +87,38 @@ export function Hero({ block, isPrimary = false }: HeroProps): ReactNode {
             </Text>
           ) : null}
 
-          <div className="flex w-full flex-col gap-3 pt-2 sm:w-auto sm:flex-row">
-            <LinkButton
-              href={block.primaryCta.href}
-              variant="primary"
-              size="lg"
-              isExternal={block.primaryCta.isExternal}
-              fullWidth
-            >
-              {block.primaryCta.label}
-            </LinkButton>
-            {block.secondaryCta ? (
+          {/*
+           * Each button is wrapped rather than given fullWidth directly. As
+           * bare flex items both carried w-full, so the row divided itself
+           * evenly and the longer label — the phone number — was squeezed until
+           * it wrapped. The wrapper is full width while the row is stacked and
+           * shrink-to-fit once it becomes a row, so each button sizes to its own
+           * content. shrink-0 stops the row reclaiming that width again.
+           */}
+          <div className="flex w-full flex-col gap-3 pt-2 sm:w-auto sm:flex-row sm:items-center">
+            <div className="w-full sm:w-auto sm:shrink-0">
               <LinkButton
-                href={block.secondaryCta.href}
-                variant="secondary"
+                href={block.primaryCta.href}
+                variant="primary"
                 size="lg"
-                isExternal={block.secondaryCta.isExternal}
+                isExternal={block.primaryCta.isExternal}
                 fullWidth
               >
-                {block.secondaryCta.label}
+                {block.primaryCta.label}
               </LinkButton>
+            </div>
+            {block.secondaryCta ? (
+              <div className="w-full sm:w-auto sm:shrink-0">
+                <LinkButton
+                  href={block.secondaryCta.href}
+                  variant="secondary"
+                  size="lg"
+                  isExternal={block.secondaryCta.isExternal}
+                  fullWidth
+                >
+                  {block.secondaryCta.label}
+                </LinkButton>
+              </div>
             ) : null}
           </div>
         </div>
