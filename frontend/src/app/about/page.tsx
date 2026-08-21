@@ -3,7 +3,10 @@ import type { ReactNode } from 'react';
 
 import { PageBlockRenderer } from '@/components/blocks/page-block-renderer';
 import { PageHeader } from '@/components/blocks/page-header';
+import { Logo } from '@/components/brand/logo';
+import { Container } from '@/components/layout/container';
 import { PageShell } from '@/components/layout/page-shell';
+import { Section } from '@/components/layout/section';
 import { getAbout } from '@/lib/api';
 import { buildMetadata } from '@/lib/seo';
 
@@ -40,6 +43,27 @@ export default async function AboutPage(): Promise<ReactNode> {
   return (
     <PageShell global={_global} currentPath="/about">
       <PageHeader title={title} />
+
+      {/*
+       * The stacked badge as a credibility anchor. It is the one lockup that
+       * carries "since 2024", which is why it belongs on the page telling the
+       * story rather than in the chrome. Green on cream is 10.31:1, and it sits
+       * on its own band so it never competes with the header lockup above it.
+       *
+       * This is the only place the logo is the sole carrier of the name, so it
+       * is the only place Logo is given real alt text.
+       */}
+      <Section spacing="tight">
+        <Container>
+          <div className="flex justify-center">
+            <Logo
+              variant="stacked"
+              height="badge"
+              alt="Grill on the Green, since 2024"
+            />
+          </div>
+        </Container>
+      </Section>
 
       <PageBlockRenderer blocks={blocks} headingLevelOffset={0} />
     </PageShell>

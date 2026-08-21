@@ -316,11 +316,34 @@ export interface LogoProps {
 }
 ```
 
-| `variant` | Asset | Surface |
-|---|---|---|
-| `primary` | `/brand/logo-horizontal.png` (1018×444) | Header, on cream or white |
-| `reverse` | `/brand/logo-reverse.png` (1440×628) | Footer, on brand green |
-| `mark` | `/brand/flag-mark.png` (952×1024) | Compact — the mobile drawer's top row |
+| `variant` | Asset | Ratio | Where it is used |
+|---|---|---|---|
+| `primary` | `/brand/logo-horizontal.png` (1018×444) | 2.29 | Header, sm and up. The one fixed identity |
+| `reverse` | `/brand/logo-reverse.png` (1440×628) | 2.29 | Footer, on brand green |
+| `mono` | `/brand/logo-mono-green.png` (1440×628) | 2.29 | Available, unplaced — the all-green lockup for grounds where the red accent would shout |
+| `stacked` | `/brand/logo-stacked.png` (660×1000) | 0.66 | About, as the "since 2024" credibility anchor |
+| `stacked-reverse` | `/brand/logo-stacked-reverse.png` (660×1000) | 0.66 | Available, unplaced — the badge for dark grounds |
+| `mark` | `/brand/flag-mark.png` (952×1024) | 0.93 | Header below sm, the mobile drawer, the 404, and the favicon set |
+
+The pairing is a contrast rule, not a preference: the cream variants are 10.31:1
+on brand green and 1.06:1 on cream, and the green variants invert that exactly.
+A reverse lockup on a light ground is not a style choice, it is invisible.
+
+**The header identity does not rotate.** Every route shows `primary`. The single
+exception is below `sm`, where it becomes `mark` — the lockup still physically
+fits (101px against 272px of content at 320px), but at that width the "ON THE"
+inside the flag is roughly 5px tall and degrades into noise. Swapping to the
+mark narrows the identity to the same glyph the favicon uses rather than
+rotating it to a different one.
+
+**Two variants are shipped but unplaced,** and that is deliberate rather than an
+oversight. `stacked-reverse` would be a second lockup in a footer column that
+already carries `reverse`, which reads as repetition, not design. `mono` was
+intended for a logo over photography, but the only full-bleed photo contexts are
+the hero — which already sits directly under the header lockup and carries the
+script eyebrow, so a third mark in one viewport — and content images, which are
+placeholder stock. Both are in `public/brand/` and wired into the component, so
+placing either later is a one-line change.
 
 Why this is not folded into `Image`: `Image` is typed to the CMS `ImageObject`
 contract, and the logo has no CMS record. Static imports also let Next read the

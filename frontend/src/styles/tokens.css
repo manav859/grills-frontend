@@ -145,6 +145,9 @@
      lockup's 2.293:1 ratio comes from the asset, never from a second token. */
   --logo-height: 44px;
   --logo-height-footer: 56px;
+  /* The stacked badge is portrait (0.66:1), so it is sized taller than the
+     horizontal lockups to carry comparable visual weight. */
+  --logo-height-badge: 180px;
 
   /* Hero band height — steps up at md and lg (06-COMPONENT-SPEC.md §Hero).
      `svh` avoids a jump as mobile browser chrome shows and hides. */
@@ -227,6 +230,7 @@
     --header-height: 80px;
     --logo-height: 56px;
     --logo-height-footer: 68px;
+    --logo-height-badge: 224px;
     --hero-height: min(80svh, 680px);
   }
 }

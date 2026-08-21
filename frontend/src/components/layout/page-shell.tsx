@@ -48,14 +48,28 @@ export function PageShell({
       <SiteHeader variant="solid">
         <Container as="div">
           <div className="flex items-center justify-between gap-4">
-            {/* The link owns the accessible name; Logo renders alt="" so the
-                name is announced once, not twice. */}
+            {/*
+             * The link owns the accessible name; both Logo renders use alt=""
+             * so the name is announced once, not twice.
+             *
+             * Below sm the full lockup still fits — it is 101px wide against
+             * 272px of content at 320px — but at that width the "ON THE" inside
+             * the flag is about 5px tall and reads as noise. The compact mark is
+             * swapped in there instead. This is the only breakpoint where the
+             * header identity changes, and it changes to the same brand mark the
+             * favicon uses, so the identity is narrowed rather than rotated.
+             */}
             <Link
               href="/"
               className="flex shrink-0 items-center"
               aria-label={site.name}
             >
-              <Logo variant="primary" height="header" priority />
+              <span className="flex sm:hidden">
+                <Logo variant="mark" height="header" priority />
+              </span>
+              <span className="hidden sm:flex">
+                <Logo variant="primary" height="header" priority />
+              </span>
             </Link>
             <div className="flex items-center gap-6">
               <PrimaryNav
